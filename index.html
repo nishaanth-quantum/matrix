@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Quantum HRM Systems — Matrix</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #f4f3ef; --surface: #fff; --surface2: #f9f8f5;
+    --border: #e2e0d8; --border2: #ccc9be;
+    --text: #1a1916; --text2: #6b6860; --text3: #9b9890;
+    --l1-bg:#e8f0fe; --l1-text:#1a56b0; --l1-border:#b0c8f8;
+    --l2-bg:#fff3cd; --l2-text:#8a5c00; --l2-border:#f0d080;
+    --l3-bg:#fde8e8; --l3-text:#a82020; --l3-border:#f4b0b0;
+    --accent:#1a56b0; --danger:#dc2626;
+    --radius:10px; --radius-sm:6px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+  /* ADMIN BAR */
+  .admin-bar{background:#1a1916;color:#fff;padding:8px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12px;}
+  .admin-bar-left{display:flex;align-items:center;gap:8px;color:#a0a09a;}
+  .admin-badge{background:#15803d;color:#fff;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;letter-spacing:.05em;}
+  .viewer-badge{background:#374151;color:#9ca3af;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;letter-spacing:.05em;}
+  .btn-admin{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;padding:5px 14px;border-radius:var(--radius-sm);border:1px solid #444;cursor:pointer;background:transparent;color:#ccc;transition:all .15s;}
+  .btn-admin:hover{background:#2a2a27;color:#fff;}
+  .btn-logout{border-color:#7f1d1d!important;color:#fca5a5!important;}
+  .btn-logout:hover{background:#450a0a!important;}
+
+  /* HEADER */
+  .site-header{background:var(--surface);border-bottom:1.5px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;position:sticky;top:0;z-index:50;}
+  .logo-block{display:flex;flex-direction:column;}
+  .company-name{font-size:17px;font-weight:600;letter-spacing:.04em;}
+  .company-sub{font-size:11px;color:var(--text2);letter-spacing:.06em;text-transform:uppercase;margin-top:2px;}
+  .header-right{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+
+  /* SWITCHER */
+  .switcher{display:flex;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:3px;gap:2px;}
+  .sw-btn{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;padding:6px 14px;border-radius:5px;border:none;cursor:pointer;background:transparent;color:var(--text2);transition:all .15s;white-space:nowrap;}
+  .sw-btn.active{background:var(--accent);color:#fff;}
+  .sw-btn:not(.active):hover{background:var(--border);color:var(--text);}
+
+  /* SEARCH */
+  .search-wrap{position:relative;}
+  .search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none;}
+  .search-input{font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 12px 8px 34px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);width:200px;outline:none;transition:border-color .15s,box-shadow .15s;}
+  .search-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,86,176,.1);}
+
+  /* BUTTONS */
+  .btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:8px 16px;border-radius:var(--radius-sm);border:1.5px solid transparent;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s;white-space:nowrap;}
+  .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .btn-primary:hover{background:#1648a0;}
+  .btn-secondary{background:var(--surface);color:var(--text2);border-color:var(--border2);}
+  .btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
+  .btn-danger{background:#fef2f2;color:var(--danger);border-color:#fecaca;}
+  .btn-danger:hover{background:#fee2e2;}
+  .btn-sm{font-size:11px;padding:4px 8px;}
+
+  /* FILTER BAR */
+  .filter-bar{display:flex;gap:8px;padding:10px 20px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap;align-items:center;}
+  .filter-bar label{font-size:11px;font-weight:600;color:var(--text2);letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;}
+  .filter-select{font-family:'DM Sans',sans-serif;font-size:12px;padding:5px 28px 5px 10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b6860' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;transition:border-color .15s;}
+  .filter-select:focus{border-color:var(--accent);}
+  .filter-chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 10px;border-radius:20px;background:var(--l1-bg);color:var(--l1-text);border:1px solid var(--l1-border);font-weight:500;}
+  .filter-chip button{background:none;border:none;cursor:pointer;color:var(--l1-text);font-size:13px;line-height:1;padding:0;}
+  .filter-clear{font-size:11px;color:var(--text3);cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif;padding:4px 8px;border-radius:var(--radius-sm);}
+  .filter-clear:hover{color:var(--danger);}
+
+  /* MAIN */
+  .main{padding:0;}
+
+  /* TABLE */
+  .table-card{background:var(--surface);border-top:1.5px solid var(--border);border-bottom:1.5px solid var(--border);overflow:hidden;}
+  .table-scroll{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;}
+  thead tr{background:#f0ede5;border-bottom:1.5px solid var(--border);}
+  th{padding:11px 14px;text-align:left;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text2);white-space:nowrap;}
+  th.actions-th{width:110px;text-align:center;}
+  tbody tr{border-bottom:1px solid var(--border);transition:background .1s;}
+  tbody tr:last-child{border-bottom:none;}
+  tbody tr:hover{background:#fafaf7;}
+  td{padding:11px 14px;font-size:13px;vertical-align:top;}
+  td.group-cell{font-weight:600;font-size:13px;color:var(--text);background:#f7f6f2;border-right:2px solid var(--border);}
+  .dept-cell{font-weight:500;font-size:13px;color:var(--text);line-height:1.4;}
+  .client-cell{font-weight:600;font-size:13px;color:var(--text);}
+  .esc-badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;margin-bottom:4px;letter-spacing:.04em;}
+  .l1-badge{background:var(--l1-bg);color:var(--l1-text);border:1px solid var(--l1-border);}
+  .l2-badge{background:var(--l2-bg);color:var(--l2-text);border:1px solid var(--l2-border);}
+  .l3-badge{background:var(--l3-bg);color:var(--l3-text);border:1px solid var(--l3-border);}
+  .contact-name{font-weight:500;font-size:13px;color:var(--text);margin-bottom:2px;}
+  .contact-phone,.contact-email{font-size:11.5px;color:var(--text2);display:flex;align-items:center;gap:4px;margin-top:2px;}
+  .contact-email a{color:var(--accent);text-decoration:none;word-break:break-all;}
+  .contact-email a:hover{text-decoration:underline;}
+  .empty-contact{color:var(--text3);font-size:12px;font-style:italic;}
+  .row-actions{display:flex;gap:4px;justify-content:center;flex-wrap:wrap;}
+  .no-results{text-align:center;padding:48px 20px;color:var(--text3);font-size:14px;}
+
+  /* MODAL */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(20,18,14,.45);z-index:200;align-items:center;justify-content:center;padding:16px;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:var(--surface);border-radius:var(--radius);border:1.5px solid var(--border);width:100%;max-width:660px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.18);animation:slideUp .2s ease;}
+  @keyframes slideUp{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+  .modal-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .modal-title{font-size:15px;font-weight:600;}
+  .modal-close{background:none;border:none;cursor:pointer;color:var(--text3);font-size:20px;line-height:1;display:flex;align-items:center;}
+  .modal-close:hover{color:var(--text);}
+  .modal-body{padding:20px 24px;}
+  .form-group{margin-bottom:14px;}
+  .form-group label{display:block;font-size:11.5px;font-weight:500;color:var(--text2);margin-bottom:5px;}
+  .form-group input{font-family:'DM Sans',sans-serif;font-size:13px;width:100%;padding:8px 11px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);outline:none;transition:border-color .15s;}
+  .form-group input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,86,176,.1);}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+  .esc-section{border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:12px;background:var(--surface2);}
+  .esc-section-header{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px;}
+  .esc-fields{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+  .modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;}
+
+  /* CONFIRM */
+  .confirm-box{display:none;position:fixed;inset:0;background:rgba(20,18,14,.45);z-index:300;align-items:center;justify-content:center;padding:16px;}
+  .confirm-box.open{display:flex;}
+  .confirm-card{background:var(--surface);border-radius:var(--radius);border:1.5px solid var(--border);padding:28px 28px 20px;max-width:360px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:slideUp .15s ease;}
+  .confirm-card h4{font-size:15px;font-weight:600;margin-bottom:8px;}
+  .confirm-card p{font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.5;}
+  .confirm-actions{display:flex;gap:10px;justify-content:center;}
+
+  /* LOGIN */
+  .login-overlay{display:none;position:fixed;inset:0;background:rgba(20,18,14,.6);z-index:400;align-items:center;justify-content:center;padding:16px;}
+  .login-overlay.open{display:flex;}
+  .login-card{background:var(--surface);border-radius:var(--radius);border:1.5px solid var(--border);padding:36px 32px 28px;max-width:360px;width:100%;box-shadow:0 24px 70px rgba(0,0,0,.22);animation:slideUp .2s ease;text-align:center;}
+  .login-icon{width:48px;height:48px;background:var(--l1-bg);border-radius:12px;display:flex;align-items:center;justify-content:margin: 0 auto 16px;}
+  .login-icon{width:48px;height:48px;background:var(--l1-bg);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+  .login-card h3{font-size:17px;font-weight:600;margin-bottom:4px;}
+  .login-card p{font-size:13px;color:var(--text2);margin-bottom:24px;}
+  .login-card input{font-family:'DM Sans',sans-serif;font-size:14px;width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);outline:none;text-align:center;letter-spacing:.06em;margin-bottom:10px;transition:border-color .15s;}
+  .login-card input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,86,176,.1);}
+  .login-error{font-size:12px;color:var(--danger);margin-bottom:10px;min-height:16px;}
+  .btn-login{width:100%;padding:10px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:background .15s;}
+  .btn-login:hover{background:#1648a0;}
+  .login-cancel{margin-top:10px;font-size:12px;color:var(--text3);cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif;}
+  .login-cancel:hover{color:var(--text2);}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:24px;right:24px;background:#1a1916;color:#fff;font-size:13px;font-weight:500;padding:10px 18px;border-radius:var(--radius-sm);z-index:999;opacity:0;transform:translateY(10px);transition:all .25s;pointer-events:none;}
+  .toast.show{opacity:1;transform:translateY(0);}
+
+  @media(max-width:640px){
+    .search-input{width:140px;}
+    .esc-fields{grid-template-columns:1fr;}
+    .form-row{grid-template-columns:1fr;}
+    .sw-btn{padding:5px 9px;font-size:11px;}
+    .filter-bar{padding:8px 12px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ADMIN BAR -->
+<div class="admin-bar">
+  <div class="admin-bar-left">
+    <span id="modeBadge" class="viewer-badge">VIEWER</span>
+    <span id="modeLabel">You are viewing in read-only mode</span>
+  </div>
+  <button class="btn-admin" id="adminToggleBtn">🔐 Admin Login</button>
+</div>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="logo-block">
+    <div class="company-name">QUANTUM HRM SYSTEMS PRIVATE LIMITED</div>
+    <div id="companySubLabel" class="company-sub">Escalation Matrix</div>
+  </div>
+  <div class="header-right">
+    <div class="switcher">
+      <button class="sw-btn active" id="sw-escalation" onclick="switchMatrix('escalation')">📋 Escalation Matrix</button>
+      <button class="sw-btn" id="sw-recruitment" onclick="switchMatrix('recruitment')">🎯 Recruitment Matrix</button>
+    </div>
+    <div class="search-wrap">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input class="search-input" type="text" id="search" placeholder="Search…" oninput="renderTable()" />
+    </div>
+    <button id="addRowBtn" class="btn btn-primary" style="display:none" onclick="openAddModal()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      Add Row
+    </button>
+  </div>
+</header>
+
+<!-- FILTER BAR -->
+<div class="filter-bar" id="filterBar"></div>
+
+<main class="main">
+  <div class="table-card">
+    <div class="table-scroll">
+      <table>
+        <thead id="tableHead"></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Add Row</div>
+      <button class="modal-close" onclick="closeModal()">&#x2715;</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveRow()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM -->
+<div class="confirm-box" id="confirmBox">
+  <div class="confirm-card">
+    <h4>Delete this row?</h4>
+    <p id="confirmMsg">This cannot be undone.</p>
+    <div class="confirm-actions">
+      <button class="btn btn-secondary" onclick="closeConfirm()">Cancel</button>
+      <button class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-card">
+    <div class="login-icon">
+      <svg width="24" height="24" fill="none" stroke="#1a56b0" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <h3>Admin Access</h3>
+    <p>Enter the admin password to enable editing.</p>
+    <input type="password" id="pwInput" placeholder="Password" />
+    <div class="login-error" id="loginError"></div>
+    <button class="btn-login" onclick="tryLogin()">Unlock Admin Mode</button>
+    <br/><button class="login-cancel" onclick="closeLogin()">Cancel</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var ADMIN_PASS = 'Quantum@9550';
+var ADMIN_SESSION_KEY = 'qhrm_admin_session';
+var ESC_KEY = 'qhrm_escalation_v2';
+var REC_KEY = 'qhrm_recruitment_v1';
+
+var DEFAULT_ESC = [
+  {dept:"Delhivery KYC",e:[{n:"AJMEERA SRIDEVI",p:"9502808708",em:"sridevi@int.quantumrobust.com"},{n:"G Bindu",p:"6309544271",em:"bindu@int.quantumrobust.com"},{n:"Maddala Chandu",p:"7013795749",em:"support@quantumrobust.com"}]},
+  {dept:"ESIC/PF - Delhivery",e:[{n:"G Bindu",p:"6309544271",em:"bindu@int.quantumrobust.com"},{n:"G Bindu",p:"6309544271",em:"bindu@int.quantumrobust.com"},{n:"Maddala Chandu",p:"7013795749",em:"support@quantumrobust.com"}]},
+  {dept:"TVS Supply Chain",e:[{n:"Sanni",p:"6309544071",em:"sanni@quantumbusiness.in"},{n:"Ankit Singh",p:"8639146271",em:"ankit@quantumrobust.com"},{n:"Kapulai Ajay",p:"8790772648",em:"ajay@quantumbusiness.in"}]},
+  {dept:"Blinkit(BCPL) Salary / PF",e:[{n:"Jeya Bharathi",p:"9442797203",em:"bharathi@int.quantumrobust.com"},{n:"Gladwin Roy",p:"8300204203",em:"cs@quantumrobust.com"},{n:"Nishaanth",p:"8940047203",em:"nishaanth@quantumbusiness.in"}]},
+  {dept:"Zomato(ZHPL) Salary / PF",e:[{n:"",p:"",em:""},{n:"Gladwin Roy",p:"8300204203",em:"cs@quantumrobust.com"},{n:"Nishaanth",p:"8940047203",em:"nishaanth@quantumbusiness.in"}]},
+  {dept:"Bistro - Salary / PF",e:[{n:"Jeya Bharathi",p:"9442797203",em:"bharathi@int.quantumrobust.com"},{n:"Gladwin Roy",p:"8300204203",em:"cs@quantumrobust.com"},{n:"Nishaanth",p:"8940047203",em:"nishaanth@quantumbusiness.in"}]},
+  {dept:"Swiggy Warehouse - Salary / PF",e:[{n:"Anshika",p:"9443904203",em:"anshika@int.quantumrobust.com"},{n:"Gladwin Roy",p:"8300204203",em:"cs@quantumrobust.com"},{n:"Nishaanth",p:"8940047203",em:"nishaanth@quantumbusiness.in"}]},
+  {dept:"Swiggy Store - Salary / PF",e:[{n:"Ananthi",p:"9488857203",em:"ananthi@int.quantumrobust.com"},{n:"Gladwin Roy",p:"8300204203",em:"cs@quantumrobust.com"},{n:"Nishaanth",p:"8940047203",em:"nishaanth@quantumbusiness.in"}]},
+  {dept:"Mahindra - Salary / PF",e:[{n:"Ananthi",p:"9488857203",em:"ananthi@int.quantumrobust.com"},{n:"Gladwin Roy",p:"8300204203",em:"cs@quantumrobust.com"},{n:"Nishaanth",p:"8940047203",em:"nishaanth@quantumbusiness.in"}]},
+  {dept:"Zomato HP CPC - Salary / PF",e:[{n:"",p:"",em:""},{n:"Gladwin Roy",p:"8300204203",em:"cs@quantumrobust.com"},{n:"Nishaanth",p:"8940047203",em:"nishaanth@quantumbusiness.in"}]},
+  {dept:"Purplle - Salary / PF",e:[{n:"Anshika",p:"9443904203",em:"anshika@int.quantumrobust.com"},{n:"Gladwin Roy",p:"8300204203",em:"cs@quantumrobust.com"},{n:"Nishaanth",p:"8940047203",em:"nishaanth@quantumbusiness.in"}]},
+  {dept:"ESIC - Blinkit, Zomato, Bistro, Mahindra, HPCPC",e:[{n:"Manikandan",p:"-",em:"-"},{n:"Gladwin Roy",p:"8300204203",em:"cs@quantumrobust.com"},{n:"Nishaanth",p:"8940047203",em:"nishaanth@quantumbusiness.in"}]},
+  {dept:"ESIC - Swiggy, Purplle, Criticalog",e:[{n:"BHUVANESHWARI M S",p:"-",em:"-"},{n:"Gladwin Roy",p:"8300204203",em:"cs@quantumrobust.com"},{n:"Nishaanth",p:"8940047203",em:"nishaanth@quantumbusiness.in"}]},
+  {dept:"All Letters",e:[{n:"Banusree",p:"9488157203",em:"banusree@int.quantumrobust.com"},{n:"Gladwin Roy",p:"8300204203",em:"cs@quantumrobust.com"},{n:"Nishaanth",p:"8940047203",em:"nishaanth@quantumbusiness.in"}]},
+  {dept:"BeeForce - Swiggy",e:[{n:"Anto Sahaya Regincy Anthoni Rages",p:"9488157203",em:"regincy@int.quantumrobust.com"},{n:"Gladwin Roy",p:"8300204203",em:"cs@quantumrobust.com"},{n:"Nishaanth",p:"8940047203",em:"nishaanth@quantumbusiness.in"}]},
+  {dept:"ID Cards",e:[{n:"Sumitha",p:"9488157203",em:"sumitha@int.quantumrobust.com"},{n:"Gladwin Roy",p:"8300204203",em:"cs@quantumrobust.com"},{n:"Nishaanth",p:"8940047203",em:"nishaanth@quantumbusiness.in"}]},
+  {dept:"CRM / MIS Reports",e:[{n:"Gladwin Roy",p:"9488157203",em:"cs@quantumrobust.com"},{n:"Sumitha",p:"9488157203",em:"sumitha@int.quantumrobust.com"},{n:"Nishaanth",p:"8940047203",em:"nishaanth@quantumbusiness.in"}]},
+  {dept:"Compliance Reports",e:[{n:"Gladwin Roy",p:"9488157203",em:"cs@quantumrobust.com"},{n:"Nishaanth",p:"8940047203",em:"nishaanth@quantumbusiness.in"},{n:"Nishaanth",p:"8940047203",em:"nishaanth@quantumbusiness.in"}]},
+  {dept:"Flipkart - OB / Salary / PF",e:[{n:"Ramya Krishnan",p:"8300435203",em:"ramya@int.quantumrobust.com"},{n:"Gladwin Roy",p:"8300204203",em:"cs@quantumrobust.com"},{n:"Nishaanth",p:"8940047203",em:"nishaanth@quantumbusiness.in"}]},
+  {dept:"ESampark - Flipkart",e:[{n:"Ramya Krishnan",p:"8300435203",em:"ramya@int.quantumrobust.com"},{n:"Gladwin Roy",p:"8300204203",em:"cs@quantumrobust.com"},{n:"Nishaanth",p:"8940047203",em:"nishaanth@quantumbusiness.in"}]}
+];
+
+var DEFAULT_REC = [];
+
+/* ── STATE ── */
+var isAdmin   = sessionStorage.getItem(ADMIN_SESSION_KEY) === '1';
+var mode      = 'escalation';
+var editIdx   = -1;
+var deleteIdx = -1;
+var activeFilters = {}; /* {key: value} */
+
+function loadData(key, def) {
+  try { var s = localStorage.getItem(key); if (s) return JSON.parse(s); } catch(e) {}
+  return JSON.parse(JSON.stringify(def));
+}
+function saveData(key, arr) { try { localStorage.setItem(key, JSON.stringify(arr)); } catch(e) {} }
+
+var escData = loadData(ESC_KEY, DEFAULT_ESC);
+var recData = loadData(REC_KEY, DEFAULT_REC);
+
+function currentData() { return mode === 'escalation' ? escData : recData; }
+function currentKey()  { return mode === 'escalation' ? ESC_KEY  : REC_KEY;  }
+
+/* ── ICONS ── */
+var phoneSVG = '<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.41 2 2 0 0 1 3.6 1.24h3a2 2 0 0 1 2 1.72c.13 1 .36 1.94.72 2.81a2 2 0 0 1-.45 2.11L7.91 9a16 16 0 0 0 6.09 6.09l1.08-1.08a2 2 0 0 1 2.11-.45c.87.36 1.81.59 2.81.72a2 2 0 0 1 1.73 2.04z"/></svg>';
+var mailSVG  = '<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>';
+var editSVG  = '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+var trashSVG = '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>';
+var copySVG  = '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+
+/* ── CONTACT CELL ── */
+function contactHTML(c, lvl) {
+  if (!c || (!c.n && !c.p && !c.em)) return '<span class="empty-contact">\u2014</span>';
+  var badges = ['l1-badge','l2-badge','l3-badge'];
+  var labels = ['L1','L2','L3'];
+  var ph = (c.p && c.p !== '-') ? '<div class="contact-phone">' + phoneSVG + ' ' + c.p + '</div>' : '';
+  var em = (c.em && c.em !== '-') ? '<div class="contact-email">' + mailSVG + ' <a href="mailto:' + c.em + '">' + c.em + '</a></div>' : '';
+  return '<div class="esc-badge ' + badges[lvl] + '">' + labels[lvl] + '</div>' +
+         '<div class="contact-name">' + (c.n || '\u2014') + '</div>' + ph + em;
+}
+
+/* ── FILTER OPTIONS ── */
+function getFilterOptions() {
+  var data = currentData();
+  if (mode === 'escalation') {
+    var depts = {};
+    data.forEach(function(r) {
+      if (r.dept) depts[r.dept] = 1;
+    });
+    return {
+      dept: Object.keys(depts).sort()
+    };
+  } else {
+    var states = {}, clients = {};
+    data.forEach(function(r) {
+      if (r.state)  states[r.state]  = 1;
+      if (r.client) clients[r.client] = 1;
+    });
+    return {
+      state:  Object.keys(states).sort(),
+      client: Object.keys(clients).sort()
+    };
+  }
+}
+
+function renderFilterBar() {
+  var bar = document.getElementById('filterBar');
+  var opts = getFilterOptions();
+  var keys = Object.keys(opts);
+  if (keys.length === 0) { bar.innerHTML = ''; bar.style.display = 'none'; return; }
+  bar.style.display = 'flex';
+
+  var labels = { state: 'State', client: 'Client', dept: 'Department', l1esc: 'L1 Contact', l2esc: 'L2 Contact', l3esc: 'L3 Contact' };
+  var html = '<label>Filter by:</label>';
+  keys.forEach(function(k) {
+    html += '<select class="filter-select" onchange="applyFilter(\'' + k + '\', this.value)">';
+    html += '<option value="">All ' + labels[k] + 's</option>';
+    opts[k].forEach(function(v) {
+      var sel = activeFilters[k] === v ? ' selected' : '';
+      html += '<option value="' + escH(v) + '"' + sel + '>' + escH(v) + '</option>';
+    });
+    html += '</select>';
+  });
+
+  /* show active chips */
+  var hasFilter = false;
+  Object.keys(activeFilters).forEach(function(k) {
+    if (activeFilters[k]) {
+      hasFilter = true;
+      html += '<span class="filter-chip">' + labels[k] + ': ' + escH(activeFilters[k]) +
+              ' <button onclick="clearFilter(\'' + k + '\')">\u00d7</button></span>';
+    }
+  });
+  if (hasFilter) html += '<button class="filter-clear" onclick="clearAllFilters()">Clear all</button>';
+
+  bar.innerHTML = html;
+}
+
+function applyFilter(key, val) {
+  activeFilters[key] = val;
+  renderFilterBar();
+  renderTable();
+}
+function clearFilter(key) {
+  delete activeFilters[key];
+  renderFilterBar();
+  renderTable();
+}
+function clearAllFilters() {
+  activeFilters = {};
+  renderFilterBar();
+  renderTable();
+}
+
+/* ── RENDER HEAD ── */
+function renderHead() {
+  var html = '<tr>';
+  if (mode === 'escalation') {
+    html += '<th>Department</th>';
+  } else {
+    html += '<th>State</th><th>Client</th>';
+  }
+  html += '<th><span class="esc-badge l1-badge">L1</span> Escalation 1</th>';
+  html += '<th><span class="esc-badge l2-badge">L2</span> Escalation 2</th>';
+  html += '<th><span class="esc-badge l3-badge">L3</span> Escalation 3</th>';
+  if (isAdmin) html += '<th class="actions-th">Actions</th>';
+  html += '</tr>';
+  document.getElementById('tableHead').innerHTML = html;
+}
+
+/* ── RENDER TABLE ── */
+function renderTable() {
+  var q = (document.getElementById('search').value || '').toLowerCase();
+  var data = currentData();
+  var totalCols = isAdmin
+    ? (mode === 'escalation' ? 5 : 6)
+    : (mode === 'escalation' ? 4 : 5);
+
+  var rows = data.filter(function(r) {
+    /* filter dropdowns */
+    var fOk = true;
+    Object.keys(activeFilters).forEach(function(k) {
+      if (!activeFilters[k]) return;
+      if (k === 'state'  && r.state  !== activeFilters[k]) fOk = false;
+      if (k === 'client' && r.client !== activeFilters[k]) fOk = false;
+      if (k === 'dept'   && r.dept !== activeFilters[k]) fOk = false;
+      if (k === 'l1esc'  && (!r.e || !r.e[0] || r.e[0].n !== activeFilters[k])) fOk = false;
+      if (k === 'l2esc'  && (!r.e || !r.e[1] || r.e[1].n !== activeFilters[k])) fOk = false;
+      if (k === 'l3esc'  && (!r.e || !r.e[2] || r.e[2].n !== activeFilters[k])) fOk = false;
+    });
+    if (!fOk) return false;
+    /* text search */
+    if (!q) return true;
+    var base = mode === 'escalation'
+      ? (r.dept || '').toLowerCase().indexOf(q) >= 0
+      : ((r.state||'').toLowerCase().indexOf(q) >= 0 || (r.client||'').toLowerCase().indexOf(q) >= 0);
+    return base || (r.e || []).some(function(c) {
+      return (c.n||'').toLowerCase().indexOf(q) >= 0 ||
+             (c.em||'').toLowerCase().indexOf(q) >= 0 ||
+             (c.p||'').indexOf(q) >= 0;
+    });
+  });
+
+  var tbody = document.getElementById('tableBody');
+  if (rows.length === 0) {
+    var msg = 'No rows found.';
+    if (isAdmin && !q && Object.keys(activeFilters).length === 0) msg += ' Click \u201cAdd Row\u201d to get started.';
+    tbody.innerHTML = '<tr><td colspan="' + totalCols + '" class="no-results">' + msg + '</td></tr>';
+    return;
+  }
+
+  /* group by state for recruitment */
+  var html = '';
+  if (mode === 'recruitment') {
+    /* sort by state then client */
+    var sorted = rows.slice().sort(function(a,b) {
+      var sa = (a.state||'').toLowerCase(), sb = (b.state||'').toLowerCase();
+      if (sa !== sb) return sa < sb ? -1 : 1;
+      return (a.client||'').toLowerCase() < (b.client||'').toLowerCase() ? -1 : 1;
+    });
+    /* build state groups */
+    var i = 0;
+    while (i < sorted.length) {
+      var state = sorted[i].state || '';
+      var group = [];
+      var j = i;
+      while (j < sorted.length && (sorted[j].state || '') === state) { group.push(sorted[j]); j++; }
+      /* render group rows */
+      for (var g = 0; g < group.length; g++) {
+        var r = group[g];
+        var ri = data.indexOf(r);
+        html += '<tr>';
+        if (g === 0) {
+          html += '<td class="group-cell" rowspan="' + group.length + '" style="vertical-align:middle">' + escH(state) + '</td>';
+        }
+        html += '<td><div class="client-cell">' + escH(r.client || '') + '</div></td>';
+        html += '<td>' + contactHTML(r.e[0], 0) + '</td>';
+        html += '<td>' + contactHTML(r.e[1], 1) + '</td>';
+        html += '<td>' + contactHTML(r.e[2], 2) + '</td>';
+        if (isAdmin) {
+          html += '<td><div class="row-actions">';
+          html += '<button class="btn btn-secondary btn-sm" title="Edit" onclick="openEditModal(' + ri + ')">' + editSVG + '</button>';
+          html += '<button class="btn btn-secondary btn-sm" title="Duplicate" onclick="duplicateRow(' + ri + ')">' + copySVG + '</button>';
+          html += '<button class="btn btn-danger btn-sm" title="Delete" onclick="openConfirm(' + ri + ')">' + trashSVG + '</button>';
+          html += '</div></td>';
+        }
+        html += '</tr>';
+      }
+      i = j;
+    }
+  } else {
+    /* escalation — simple list */
+    for (var ri2 = 0; ri2 < rows.length; ri2++) {
+      var r2 = rows[ri2];
+      var idx = data.indexOf(r2);
+      html += '<tr>';
+      html += '<td><div class="dept-cell">' + escH(r2.dept || '') + '</div></td>';
+      html += '<td>' + contactHTML(r2.e[0], 0) + '</td>';
+      html += '<td>' + contactHTML(r2.e[1], 1) + '</td>';
+      html += '<td>' + contactHTML(r2.e[2], 2) + '</td>';
+      if (isAdmin) {
+        html += '<td><div class="row-actions">';
+        html += '<button class="btn btn-secondary btn-sm" title="Edit" onclick="openEditModal(' + idx + ')">' + editSVG + '</button>';
+        html += '<button class="btn btn-secondary btn-sm" title="Duplicate" onclick="duplicateRow(' + idx + ')">' + copySVG + '</button>';
+        html += '<button class="btn btn-danger btn-sm" title="Delete" onclick="openConfirm(' + idx + ')">' + trashSVG + '</button>';
+        html += '</div></td>';
+      }
+      html += '</tr>';
+    }
+  }
+  tbody.innerHTML = html;
+}
+
+/* ── DUPLICATE ── */
+function duplicateRow(i) {
+  var data = currentData();
+  var copy = JSON.parse(JSON.stringify(data[i]));
+  if (mode === 'escalation') copy.dept = copy.dept + ' (copy)';
+  else copy.client = (copy.client || '') + ' (copy)';
+  data.splice(i + 1, 0, copy);
+  saveData(currentKey(), data);
+  renderTable();
+  renderFilterBar();
+  showToast('Row duplicated');
+}
+
+/* ── MODAL FORM ── */
+function escH(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+function buildModalForm(r) {
+  var html = '';
+  if (mode === 'escalation') {
+    html += '<div class="form-group"><label>Department Name</label><input id="fDept" type="text" value="' + escH(r ? r.dept : '') + '" placeholder="e.g. Blinkit (BCPL) Salary / PF" /></div>';
+  } else {
+    html += '<div class="form-row">';
+    html += '<div class="form-group" style="margin:0"><label>State</label><input id="fState" type="text" value="' + escH(r ? r.state : '') + '" placeholder="e.g. Tamil Nadu" /></div>';
+    html += '<div class="form-group" style="margin:0"><label>Client</label><input id="fClient" type="text" value="' + escH(r ? r.client : '') + '" placeholder="e.g. Swiggy" /></div>';
+    html += '</div>';
+  }
+  var lvlColors = ['var(--l1-text)','var(--l2-text)','var(--l3-text)'];
+  var lvlNames  = ['L1 — Escalation 1','L2 — Escalation 2','L3 — Escalation 3'];
+  for (var j = 0; j < 3; j++) {
+    var c = r ? (r.e[j] || {}) : {};
+    html += '<div class="esc-section">';
+    html += '<div class="esc-section-header" style="color:' + lvlColors[j] + '">' + lvlNames[j] + '</div>';
+    html += '<div class="esc-fields">';
+    html += '<div class="form-group" style="margin:0"><label>Name</label><input id="e' + j + 'n" type="text" value="' + escH(c.n||'') + '" /></div>';
+    html += '<div class="form-group" style="margin:0"><label>Mobile</label><input id="e' + j + 'p" type="text" value="' + escH(c.p||'') + '" /></div>';
+    html += '<div class="form-group" style="margin:0"><label>Email</label><input id="e' + j + 'e" type="email" value="' + escH(c.em||'') + '" /></div>';
+    html += '</div></div>';
+  }
+  document.getElementById('modalBody').innerHTML = html;
+}
+
+function openAddModal() {
+  editIdx = -1;
+  document.getElementById('modalTitle').textContent = 'Add Row \u2014 ' + (mode === 'escalation' ? 'Escalation' : 'Recruitment') + ' Matrix';
+  buildModalForm(null);
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function openEditModal(i) {
+  editIdx = i;
+  document.getElementById('modalTitle').textContent = 'Edit Row';
+  buildModalForm(currentData()[i]);
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+
+function saveRow() {
+  var esc3 = [];
+  for (var j = 0; j < 3; j++) {
+    esc3.push({
+      n:  (document.getElementById('e'+j+'n')||{value:''}).value.trim(),
+      p:  (document.getElementById('e'+j+'p')||{value:''}).value.trim(),
+      em: (document.getElementById('e'+j+'e')||{value:''}).value.trim()
+    });
+  }
+  var row;
+  if (mode === 'escalation') {
+    var dept = (document.getElementById('fDept')||{value:''}).value.trim();
+    if (!dept) { document.getElementById('fDept').focus(); return; }
+    row = {dept: dept, e: esc3};
+  } else {
+    var state  = (document.getElementById('fState')||{value:''}).value.trim();
+    var client = (document.getElementById('fClient')||{value:''}).value.trim();
+    if (!state && !client) { document.getElementById('fState').focus(); return; }
+    row = {state: state, client: client, e: esc3};
+  }
+  var data = currentData();
+  if (editIdx >= 0) { data[editIdx] = row; showToast('Row updated'); }
+  else { data.push(row); showToast('Row added'); }
+  saveData(currentKey(), data);
+  closeModal();
+  renderFilterBar();
+  renderTable();
+}
+
+/* ── DELETE ── */
+function openConfirm(i) {
+  deleteIdx = i;
+  var r = currentData()[i];
+  var label = mode === 'escalation' ? (r.dept||'this row') : ((r.state||'') + ' / ' + (r.client||'this row'));
+  document.getElementById('confirmMsg').textContent = 'Delete "' + label + '"? This cannot be undone.';
+  document.getElementById('confirmBox').classList.add('open');
+}
+function closeConfirm() { document.getElementById('confirmBox').classList.remove('open'); deleteIdx = -1; }
+function confirmDelete() {
+  if (deleteIdx < 0) return;
+  var data = currentData();
+  var name = mode === 'escalation' ? data[deleteIdx].dept : (data[deleteIdx].state + ' / ' + data[deleteIdx].client);
+  data.splice(deleteIdx, 1);
+  if (mode === 'escalation') escData = data; else recData = data;
+  saveData(currentKey(), data);
+  closeConfirm();
+  renderFilterBar();
+  renderTable();
+  showToast('"' + name + '" deleted');
+}
+
+/* ── SWITCH ── */
+function switchMatrix(m) {
+  mode = m;
+  activeFilters = {};
+  document.getElementById('sw-escalation').className = 'sw-btn' + (m === 'escalation' ? ' active' : '');
+  document.getElementById('sw-recruitment').className = 'sw-btn' + (m === 'recruitment' ? ' active' : '');
+  document.getElementById('companySubLabel').textContent = m === 'escalation' ? 'Escalation Matrix' : 'Recruitment Matrix';
+  document.getElementById('search').value = '';
+  renderHead();
+  renderFilterBar();
+  renderTable();
+}
+
+/* ── ADMIN ── */
+function updateAdminUI() {
+  var badge  = document.getElementById('modeBadge');
+  var label  = document.getElementById('modeLabel');
+  var btn    = document.getElementById('adminToggleBtn');
+  var addBtn = document.getElementById('addRowBtn');
+  if (isAdmin) {
+    badge.className = 'admin-badge'; badge.textContent = 'ADMIN';
+    label.textContent = 'Admin mode \u2014 add, edit, duplicate and delete rows';
+    btn.innerHTML = '\uD83D\uDD13 Logout Admin';
+    btn.className = 'btn-admin btn-logout';
+    btn.onclick = logoutAdmin;
+    addBtn.style.display = '';
+  } else {
+    badge.className = 'viewer-badge'; badge.textContent = 'VIEWER';
+    label.textContent = 'You are viewing in read-only mode';
+    btn.innerHTML = '\uD83D\uDD10 Admin Login';
+    btn.className = 'btn-admin';
+    btn.onclick = openLogin;
+    addBtn.style.display = 'none';
+  }
+  renderHead();
+  renderFilterBar();
+  renderTable();
+}
+function openLogin() {
+  document.getElementById('pwInput').value = '';
+  document.getElementById('loginError').textContent = '';
+  document.getElementById('loginOverlay').classList.add('open');
+  setTimeout(function() { document.getElementById('pwInput').focus(); }, 100);
+}
+function closeLogin() { document.getElementById('loginOverlay').classList.remove('open'); }
+function tryLogin() {
+  if (document.getElementById('pwInput').value === ADMIN_PASS) {
+    isAdmin = true; sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
+    closeLogin(); updateAdminUI(); showToast('Admin mode activated');
+  } else {
+    document.getElementById('loginError').textContent = 'Incorrect password.';
+    document.getElementById('pwInput').value = '';
+    document.getElementById('pwInput').focus();
+  }
+}
+function logoutAdmin() {
+  isAdmin = false; sessionStorage.removeItem(ADMIN_SESSION_KEY);
+  updateAdminUI(); showToast('Logged out of admin mode');
+}
+
+/* ── TOAST ── */
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 2800);
+}
+
+/* ── EVENTS ── */
+document.getElementById('pwInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') tryLogin(); });
+document.getElementById('modalOverlay').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+document.getElementById('confirmBox').addEventListener('click', function(e) { if (e.target === this) closeConfirm(); });
+document.getElementById('loginOverlay').addEventListener('click', function(e) { if (e.target === this) closeLogin(); });
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeModal(); closeConfirm(); closeLogin(); } });
+
+/* ── INIT ── */
+updateAdminUI();
+</script>
+</body>
+</html>
