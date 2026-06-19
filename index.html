@@ -28,10 +28,9 @@ body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;backgroun
 .company-name{font-size:15px;font-weight:600;letter-spacing:.03em;color:var(--text);}
 .company-sub{font-size:11px;color:var(--text2);letter-spacing:.06em;text-transform:uppercase;margin-top:2px;}
 .header-right{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
-.switcher{display:flex;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:3px;gap:2px;}
-.sw-btn{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;padding:6px 13px;border-radius:5px;border:none;cursor:pointer;background:transparent;color:var(--text2);transition:all .15s;white-space:nowrap;}
-.sw-btn.active{background:var(--accent);color:#fff;}
-.sw-btn:not(.active):hover{background:var(--border);color:var(--text);}
+.matrix-select{font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:600;padding:8px 32px 8px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background-color:var(--surface2);color:var(--text);outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b6860' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;transition:border-color .15s;white-space:nowrap;}
+.matrix-select:focus{border-color:var(--accent);}
+.matrix-select:hover{border-color:var(--accent);}
 .search-wrap{position:relative;}
 .search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none;}
 .search-input{font-family:'DM Sans',sans-serif;font-size:13px;padding:8px 12px 8px 34px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);width:200px;outline:none;transition:border-color .15s,box-shadow .15s;}
@@ -77,11 +76,11 @@ td.group-cell{font-weight:600;font-size:13px;color:var(--text);background:#f7f6f
 .l3-badge{background:var(--l3-bg);color:var(--l3-text);border:1px solid var(--l3-border);}
 .contact-name{font-weight:500;font-size:13px;color:var(--text);margin-bottom:2px;}
 .contact-phone,.contact-email{font-size:11.5px;color:var(--text2);display:flex;align-items:center;gap:4px;margin-top:2px;flex-wrap:wrap;}
-.contact-actions{display:flex;gap:4px;margin-top:4px;}
-.btn-call{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;padding:3px 8px;border-radius:4px;border:1.5px solid #1a56b0;background:#e8f0fe;color:#1a56b0;cursor:pointer;text-decoration:none;transition:all .15s;}
-.btn-call:hover{background:#1a56b0;color:#fff;}
-.btn-wa{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;padding:3px 8px;border-radius:4px;border:1.5px solid #25d366;background:#e6faf0;color:#128c3e;cursor:pointer;text-decoration:none;transition:all .15s;}
-.btn-wa:hover{background:#25d366;color:#fff;}
+.icon-btn{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:4px;cursor:pointer;text-decoration:none;flex-shrink:0;transition:all .15s;}
+.icon-call{border:1.3px solid #1a56b0;background:#e8f0fe;color:#1a56b0;}
+.icon-call:hover{background:#1a56b0;color:#fff;}
+.icon-wa{border:1.3px solid #25d366;background:#e6faf0;color:#128c3e;}
+.icon-wa:hover{background:#25d366;color:#fff;}
 .contact-email a{color:var(--accent);text-decoration:none;word-break:break-all;}
 .contact-email a:hover{text-decoration:underline;}
 .empty-contact{color:var(--text3);font-size:12px;font-style:italic;}
@@ -123,7 +122,7 @@ td.group-cell{font-weight:600;font-size:13px;color:var(--text);background:#f7f6f
 .confirm-actions{display:flex;gap:10px;justify-content:center;}
 .toast{position:fixed;bottom:24px;right:24px;background:#1a1916;color:#fff;font-size:13px;font-weight:500;padding:10px 18px;border-radius:var(--radius-sm);z-index:999;opacity:0;transform:translateY(10px);transition:all .25s;pointer-events:none;}
 .toast.show{opacity:1;transform:translateY(0);}
-@media(max-width:640px){.search-input{width:140px;}.esc-fields{grid-template-columns:1fr;}.form-row{grid-template-columns:1fr;}.sw-btn{padding:5px 9px;font-size:11px;}}
+@media(max-width:640px){.search-input{width:140px;}.esc-fields{grid-template-columns:1fr;}.form-row{grid-template-columns:1fr;}.matrix-select{padding:6px 26px 6px 10px;font-size:11px;}}
 .import-overlay{display:none;position:fixed;inset:0;background:rgba(20,18,14,.5);z-index:200;align-items:center;justify-content:center;padding:16px;}
 .import-overlay.open{display:flex;}
 .import-modal{background:var(--surface);border-radius:var(--radius);border:1.5px solid var(--border);width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.18);animation:slideUp .2s ease;}
@@ -160,11 +159,11 @@ td.group-cell{font-weight:600;font-size:13px;color:var(--text);background:#f7f6f
     </div>
   </div>
   <div class="header-right">
-    <div class="switcher">
-      <button class="sw-btn active" id="sw-escalation">&#128203; Escalation Matrix</button>
-      <button class="sw-btn" id="sw-recruitment">&#127919; Recruitment Matrix</button>
-      <button class="sw-btn" id="sw-documents">&#128196; Documents SPOC</button>
-    </div>
+    <select class="matrix-select" id="matrixSelect">
+      <option value="escalation">&#128203; Escalation Matrix</option>
+      <option value="recruitment">&#127919; Recruitment Matrix</option>
+      <option value="documents">&#128196; Documents SPOC</option>
+    </select>
     <div class="search-wrap">
       <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <input class="search-input" type="text" id="search" placeholder="Search..." oninput="renderTable()"/>
@@ -328,8 +327,7 @@ function contactCell(c,lvl){
   var bg=['l1-badge','l2-badge','l3-badge'],lb=['L1','L2','L3'];
   var ph='',acts='';
   if(c.p&&c.p!=='-'){
-    ph='<div class="contact-phone">'+PHONE+' '+h(c.p)+'</div>';
-    acts='<div class="contact-actions"><a class="btn-call" href="tel:'+h(c.p)+'">'+PHONE_ICON+' Call</a><a class="btn-wa" href="https://wa.me/91'+h(c.p.replace(/[^0-9]/g,''))+'" target="_blank">'+WA_ICON+' WhatsApp</a></div>';
+    ph='<div class="contact-phone">'+PHONE+' '+h(c.p)+' <a class="icon-btn icon-call" href="tel:'+h(c.p)+'" title="Call">'+PHONE_ICON+'</a><a class="icon-btn icon-wa" href="https://wa.me/91'+h(c.p.replace(/[^0-9]/g,''))+'" target="_blank" title="WhatsApp">'+WA_ICON+'</a></div>';
   }
   var em=(c.em&&c.em!=='-')?'<div class="contact-email">'+MAIL+' <a href="mailto:'+h(c.em)+'">'+h(c.em)+'</a></div>':''
   return '<div class="esc-badge '+bg[lvl]+'">'+lb[lvl]+'</div><div class="contact-name">'+h(c.n||'\u2014')+'</div>'+ph+acts+em;
@@ -406,8 +404,7 @@ function renderTable(){
         spocHtml+='<div class="spoc-info">';
         spocHtml+='<div class="contact-name">'+h(s.n||'—')+'</div>';
         if(s.p&&s.p!=='-'){
-          spocHtml+='<div class="contact-phone">'+PHONE+' '+h(s.p)+'</div>';
-          spocHtml+='<div class="contact-actions"><a class="btn-call" href="tel:'+h(s.p)+'">'+PHONE_ICON+' Call</a><a class="btn-wa" href="https://wa.me/91'+h(s.p.replace(/[^0-9]/g,''))+'" target="_blank">'+WA_ICON+' WhatsApp</a></div>';
+          spocHtml+='<div class="contact-phone">'+PHONE+' '+h(s.p)+' <a class="icon-btn icon-call" href="tel:'+h(s.p)+'" title="Call">'+PHONE_ICON+'</a><a class="icon-btn icon-wa" href="https://wa.me/91'+h(s.p.replace(/[^0-9]/g,''))+'" target="_blank" title="WhatsApp">'+WA_ICON+'</a></div>';
         }
         spocHtml+='</div></div>';
       });
@@ -558,7 +555,7 @@ function saveRow(){
 function openConfirm(i){deleteIdx=i;var r=curData()[i];var lbl=mode==='escalation'?(r.dept||'this row'):mode==='documents'?((r.state||'')+' / '+(r.client||'this row')):((r.state||'')+' / '+(r.city?r.city+' / ':'')+(r.client||'this row'));document.getElementById('confirmMsg').textContent='Delete "'+lbl+'"? This cannot be undone.';document.getElementById('confirmOverlay').classList.add('open');}
 function closeConfirm(){document.getElementById('confirmOverlay').classList.remove('open');deleteIdx=-1;}
 function doDelete(){if(deleteIdx<0)return;var d=curData(),name=(mode==='escalation'||mode==='documents')?d[deleteIdx].dept:(d[deleteIdx].state+'/'+d[deleteIdx].client);d.splice(deleteIdx,1);if(mode==='escalation')escData=d;else if(mode==='recruitment')recData=d;else docData=d;save(curKey(),d);closeConfirm();renderFilters();renderTable();toast('"'+name+'" deleted');}
-function switchMatrix(m){mode=m;filters={};document.getElementById('sw-escalation').className='sw-btn'+(m==='escalation'?' active':'');document.getElementById('sw-recruitment').className='sw-btn'+(m==='recruitment'?' active':'');document.getElementById('sw-documents').className='sw-btn'+(m==='documents'?' active':'');var labels={escalation:'Escalation Matrix',recruitment:'Recruitment Matrix',documents:'Documents SPOC'};document.getElementById('companySubLabel').textContent=labels[m]||'';document.getElementById('search').value='';renderHead();renderFilters();renderTable();}
+function switchMatrix(m){mode=m;filters={};document.getElementById('matrixSelect').value=m;var labels={escalation:'Escalation Matrix',recruitment:'Recruitment Matrix',documents:'Documents SPOC'};document.getElementById('companySubLabel').textContent=labels[m]||'';document.getElementById('search').value='';renderHead();renderFilters();renderTable();}
 function setAdminBtn(){var btn=document.getElementById('adminBtn');if(isAdmin){btn.innerHTML='\uD83D\uDD13 Logout Admin';btn.className='btn-admin logout';}else{btn.innerHTML='\uD83D\uDD12 Admin Login';btn.className='btn-admin';}}
 function openLogin(){document.getElementById('pwInput').value='';document.getElementById('loginError').textContent='';document.getElementById('loginOverlay').classList.add('open');setTimeout(function(){document.getElementById('pwInput').focus();},100);}
 function closeLogin(){document.getElementById('loginOverlay').classList.remove('open');}
@@ -763,9 +760,7 @@ dz.addEventListener('drop',function(e){e.preventDefault();dz.classList.remove('d
 document.getElementById('importFileInput').addEventListener('change',function(){if(this.files[0])parseImportFile(this.files[0]);});
 
 document.getElementById('adminBtn').addEventListener('click',function(){if(isAdmin)doLogout();else openLogin();});
-document.getElementById('sw-escalation').addEventListener('click',function(){switchMatrix('escalation');});
-document.getElementById('sw-recruitment').addEventListener('click',function(){switchMatrix('recruitment');});
-document.getElementById('sw-documents').addEventListener('click',function(){switchMatrix('documents');});
+document.getElementById('matrixSelect').addEventListener('change',function(){switchMatrix(this.value);});
 document.getElementById('addRowBtn').addEventListener('click',openAdd);
 document.getElementById('modalCloseBtn').addEventListener('click',closeEdit);
 document.getElementById('modalCancelBtn').addEventListener('click',closeEdit);
