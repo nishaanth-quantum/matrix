@@ -76,7 +76,12 @@ td.group-cell{font-weight:600;font-size:13px;color:var(--text);background:#f7f6f
 .l2-badge{background:var(--l2-bg);color:var(--l2-text);border:1px solid var(--l2-border);}
 .l3-badge{background:var(--l3-bg);color:var(--l3-text);border:1px solid var(--l3-border);}
 .contact-name{font-weight:500;font-size:13px;color:var(--text);margin-bottom:2px;}
-.contact-phone,.contact-email{font-size:11.5px;color:var(--text2);display:flex;align-items:center;gap:4px;margin-top:2px;}
+.contact-phone,.contact-email{font-size:11.5px;color:var(--text2);display:flex;align-items:center;gap:4px;margin-top:2px;flex-wrap:wrap;}
+.contact-actions{display:flex;gap:4px;margin-top:4px;}
+.btn-call{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;padding:3px 8px;border-radius:4px;border:1.5px solid #1a56b0;background:#e8f0fe;color:#1a56b0;cursor:pointer;text-decoration:none;transition:all .15s;}
+.btn-call:hover{background:#1a56b0;color:#fff;}
+.btn-wa{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:600;padding:3px 8px;border-radius:4px;border:1.5px solid #25d366;background:#e6faf0;color:#128c3e;cursor:pointer;text-decoration:none;transition:all .15s;}
+.btn-wa:hover{background:#25d366;color:#fff;}
 .contact-email a{color:var(--accent);text-decoration:none;word-break:break-all;}
 .contact-email a:hover{text-decoration:underline;}
 .empty-contact{color:var(--text3);font-size:12px;font-style:italic;}
@@ -97,7 +102,7 @@ td.group-cell{font-weight:600;font-size:13px;color:var(--text);background:#f7f6f
 .form-group label{display:block;font-size:11.5px;font-weight:500;color:var(--text2);margin-bottom:5px;}
 .form-group input{font-family:'DM Sans',sans-serif;font-size:13px;width:100%;padding:8px 11px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);color:var(--text);outline:none;transition:border-color .15s;}
 .form-group input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(26,86,176,.1);}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+.form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:14px;}
 .esc-section{border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:12px;background:var(--surface2);}
 .esc-section-hd{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px;}
 .esc-fields{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
@@ -139,6 +144,10 @@ td.group-cell{font-weight:600;font-size:13px;color:var(--text);background:#f7f6f
 .import-mode-btn.active{border-color:var(--accent);background:var(--l1-bg);color:var(--l1-text);}
 .import-template-link{font-size:11.5px;color:var(--accent);cursor:pointer;text-decoration:underline;background:none;border:none;font-family:'DM Sans',sans-serif;padding:0;}
 .import-template-link:hover{color:#1648a0;}
+.spoc-list{display:flex;flex-wrap:wrap;gap:10px;padding:4px 0;}
+.spoc-card{display:flex;align-items:flex-start;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 11px;min-width:200px;max-width:300px;}
+.spoc-num{display:flex;align-items:center;justify-content:center;min-width:22px;height:22px;background:var(--accent);color:#fff;border-radius:50%;font-size:11px;font-weight:700;margin-top:1px;flex-shrink:0;}
+.spoc-info{display:flex;flex-direction:column;gap:2px;}
 </style>
 </head>
 <body>
@@ -154,6 +163,7 @@ td.group-cell{font-weight:600;font-size:13px;color:var(--text);background:#f7f6f
     <div class="switcher">
       <button class="sw-btn active" id="sw-escalation">&#128203; Escalation Matrix</button>
       <button class="sw-btn" id="sw-recruitment">&#127919; Recruitment Matrix</button>
+      <button class="sw-btn" id="sw-documents">&#128196; Documents SPOC</button>
     </div>
     <div class="search-wrap">
       <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -228,6 +238,7 @@ td.group-cell{font-weight:600;font-size:13px;color:var(--text);background:#f7f6f
       <div class="import-mode-row">
         <button class="import-mode-btn active" id="importModeEsc" onclick="setImportMode('escalation')">&#128203; Escalation Matrix</button>
         <button class="import-mode-btn" id="importModeRec" onclick="setImportMode('recruitment')">&#127919; Recruitment Matrix</button>
+        <button class="import-mode-btn" id="importModeDoc" onclick="setImportMode('documents')">&#128196; Documents SPOC</button>
       </div>
       <div id="importDropZone" class="import-drop">
         <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -275,7 +286,25 @@ var DEFAULT_ESC=[
   {dept:"Flipkart - OB / Salary / PF",e:[{n:"Ramya Krishnan",p:"8300435203",em:"ramya@int.quantumrobust.com"},{n:"Gladwin Roy",p:"8300204203",em:"cs@quantumrobust.com"},{n:"Nishaanth",p:"8940047203",em:"nishaanth@quantumbusiness.in"}]},
   {dept:"ESampark - Flipkart",e:[{n:"Ramya Krishnan",p:"8300435203",em:"ramya@int.quantumrobust.com"},{n:"Gladwin Roy",p:"8300204203",em:"cs@quantumrobust.com"},{n:"Nishaanth",p:"8940047203",em:"nishaanth@quantumbusiness.in"}]}
 ];
-var DEFAULT_REC=[];
+var DEFAULT_REC=[
+  {state:'Tamil Nadu',city:'Chennai',client:'Delhivery',e:[{n:'Ramesh',p:'9876543210',em:''},{n:'Priya',p:'9876543211',em:''},{n:'Nishaanth',p:'8940047203',em:''}]},
+  {state:'Tamil Nadu',city:'Coimbatore',client:'Blinkit',e:[{n:'Kumar',p:'9876543220',em:''},{n:'Divya',p:'9876543221',em:''},{n:'Nishaanth',p:'8940047203',em:''}]},
+  {state:'Karnataka',city:'Bangalore',client:'Swiggy',e:[{n:'Arun',p:'9876543230',em:''},{n:'Meena',p:'9876543231',em:''},{n:'Nishaanth',p:'8940047203',em:''}]}
+];
+var DOC_KEY='qhrm_doc_v1';
+var DEFAULT_DOC=[
+  {state:"Tamil Nadu",location:"Chennai",client:"Delhivery",spocs:[{n:"AJMEERA SRIDEVI",p:"9502808708",em:""},{n:"G Bindu",p:"6309544271",em:""}]},
+  {state:"Tamil Nadu",location:"Chennai",client:"Blinkit (BCPL)",spocs:[{n:"Jeya Bharathi",p:"9442797203",em:""},{n:"Gladwin Roy",p:"8300204203",em:""}]},
+  {state:"Tamil Nadu",location:"Chennai",client:"Zomato (ZHPL)",spocs:[{n:"Gladwin Roy",p:"8300204203",em:""},{n:"Nishaanth",p:"8940047203",em:""}]},
+  {state:"Tamil Nadu",location:"Chennai",client:"Swiggy",spocs:[{n:"Anshika",p:"9443904203",em:""},{n:"Ananthi",p:"9488857203",em:""}]},
+  {state:"Tamil Nadu",location:"Chennai",client:"Flipkart",spocs:[{n:"Ramya Krishnan",p:"8300435203",em:""},{n:"Gladwin Roy",p:"8300204203",em:""}]},
+  {state:"Tamil Nadu",location:"Chennai",client:"TVS Supply Chain",spocs:[{n:"Sanni",p:"6309544071",em:""},{n:"Ankit Singh",p:"8639146271",em:""}]},
+  {state:"Tamil Nadu",location:"Chennai",client:"Mahindra",spocs:[{n:"Ananthi",p:"9488857203",em:""}]},
+  {state:"Tamil Nadu",location:"Chennai",client:"Purplle",spocs:[{n:"Anshika",p:"9443904203",em:""}]},
+  {state:"Tamil Nadu",location:"Chennai",client:"All Letters",spocs:[{n:"Banusree",p:"9488157203",em:""},{n:"Gladwin Roy",p:"8300204203",em:""}]},
+  {state:"Tamil Nadu",location:"Chennai",client:"ID Cards",spocs:[{n:"Sumitha",p:"9488157203",em:""},{n:"Gladwin Roy",p:"8300204203",em:""}]},
+  {state:"Tamil Nadu",location:"Chennai",client:"Compliance Reports",spocs:[{n:"Gladwin Roy",p:"8300204203",em:""},{n:"Nishaanth",p:"8940047203",em:""}]}
+];
 var isAdmin=sessionStorage.getItem(SK)==='1';
 var mode='escalation';
 var editIdx=-1,deleteIdx=-1,filters={};
@@ -283,33 +312,41 @@ function load(k,d){try{var s=localStorage.getItem(k);if(s)return JSON.parse(s);}
 function save(k,d){try{localStorage.setItem(k,JSON.stringify(d));}catch(e){}}
 var escData=load(ESC_KEY,DEFAULT_ESC);
 var recData=load(REC_KEY,DEFAULT_REC);
-function curData(){return mode==='escalation'?escData:recData;}
-function curKey(){return mode==='escalation'?ESC_KEY:REC_KEY;}
+var docData=load(DOC_KEY,DEFAULT_DOC);
+function curData(){return mode==='escalation'?escData:mode==='recruitment'?recData:docData;}
+function curKey(){return mode==='escalation'?ESC_KEY:mode==='recruitment'?REC_KEY:DOC_KEY;}
 var PHONE='<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.41 2 2 0 0 1 3.6 1.24h3a2 2 0 0 1 2 1.72c.13 1 .36 1.94.72 2.81a2 2 0 0 1-.45 2.11L7.91 9a16 16 0 0 0 6.09 6.09l1.08-1.08a2 2 0 0 1 2.11-.45c.87.36 1.81.59 2.81.72a2 2 0 0 1 1.73 2.04z"/></svg>';
 var MAIL='<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>';
 var EDIT='<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
 var TRASH='<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>';
 var COPY='<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+var PHONE_ICON='<svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.41 2 2 0 0 1 3.6 1.24h3a2 2 0 0 1 2 1.72c.13 1 .36 1.94.72 2.81a2 2 0 0 1-.45 2.11L7.91 9a16 16 0 0 0 6.09 6.09l1.08-1.08a2 2 0 0 1 2.11-.45c.87.36 1.81.59 2.81.72a2 2 0 0 1 1.73 2.04z"/></svg>';
+var WA_ICON='<svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>';
 function h(s){return(s||''). replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
 function contactCell(c,lvl){
   if(!c||(!c.n&&!c.p&&!c.em))return '<span class="empty-contact">\u2014</span>';
   var bg=['l1-badge','l2-badge','l3-badge'],lb=['L1','L2','L3'];
-  var ph=(c.p&&c.p!=='-')?'<div class="contact-phone">'+PHONE+' '+h(c.p)+'</div>':''
+  var ph='',acts='';
+  if(c.p&&c.p!=='-'){
+    ph='<div class="contact-phone">'+PHONE+' '+h(c.p)+'</div>';
+    acts='<div class="contact-actions"><a class="btn-call" href="tel:'+h(c.p)+'">'+PHONE_ICON+' Call</a><a class="btn-wa" href="https://wa.me/91'+h(c.p.replace(/[^0-9]/g,''))+'" target="_blank">'+WA_ICON+' WhatsApp</a></div>';
+  }
   var em=(c.em&&c.em!=='-')?'<div class="contact-email">'+MAIL+' <a href="mailto:'+h(c.em)+'">'+h(c.em)+'</a></div>':''
-  return '<div class="esc-badge '+bg[lvl]+'">'+lb[lvl]+'</div><div class="contact-name">'+h(c.n||'\u2014')+'</div>'+ph+em;
+  return '<div class="esc-badge '+bg[lvl]+'">'+lb[lvl]+'</div><div class="contact-name">'+h(c.n||'\u2014')+'</div>'+ph+acts+em;
 }
 function filterOpts(){
   var d=curData();
   if(mode==='escalation'){var dp={};d.forEach(function(r){if(r.dept)dp[r.dept]=1;});return{dept:Object.keys(dp).sort()};}
-  var st={},cl={};d.forEach(function(r){if(r.state)st[r.state]=1;if(r.client)cl[r.client]=1;});
-  return{state:Object.keys(st).sort(),client:Object.keys(cl).sort()};
+  if(mode==='documents'){var ds={},dl={},dc={};d.forEach(function(r){if(r.state)ds[r.state]=1;if(r.location)dl[r.location]=1;if(r.client)dc[r.client]=1;});return{state:Object.keys(ds).sort(),location:Object.keys(dl).sort(),client:Object.keys(dc).sort()};}
+  var st={},ci={},cl={};d.forEach(function(r){if(r.state)st[r.state]=1;if(r.city)ci[r.city]=1;if(r.client)cl[r.client]=1;});
+  return{state:Object.keys(st).sort(),city:Object.keys(ci).sort(),client:Object.keys(cl).sort()};
 }
 function renderFilters(){
   var bar=document.getElementById('filterBar');
   var opts=filterOpts(),keys=Object.keys(opts);
   if(!keys.length){bar.className='filter-bar';return;}
   bar.className='filter-bar show';
-  var LBL={dept:'Department',state:'State',client:'Client'};
+  var LBL={dept:'Department',state:'State',city:'City / Location',location:'Location / Workarea',client:'Client'};
   var html='<span class="filter-label">Filter:</span>';
   keys.forEach(function(k){
     html+='<select class="filter-select" data-key="'+k+'">';
@@ -326,8 +363,15 @@ function renderFilters(){
 }
 function renderHead(){
   var html='<tr>';
+  if(mode==='documents'){
+    html+='<th>State</th><th>Location / Workarea</th><th>Client</th><th>SPOC Details</th>';
+    if(isAdmin)html+='<th class="actions-th">Actions</th>';
+    html+='</tr>';
+    document.getElementById('tableHead').innerHTML=html;
+    return;
+  }
   if(mode==='escalation')html+='<th>Department</th>';
-  else html+='<th>State</th><th>Client</th>';
+  else html+='<th>State</th><th>City / Location</th><th>Client</th>';
   html+='<th><span class="esc-badge l1-badge">L1</span> Escalation 1</th>';
   html+='<th><span class="esc-badge l2-badge">L2</span> Escalation 2</th>';
   html+='<th><span class="esc-badge l3-badge">L3</span> Escalation 3</th>';
@@ -337,18 +381,63 @@ function renderHead(){
 }
 function renderTable(){
   var q=(document.getElementById('search').value||'').toLowerCase();
-  var data=curData(),cols=isAdmin?(mode==='escalation'?5:6):(mode==='escalation'?4:5);
+  var data=curData();
+  var cols=mode==='documents'?(isAdmin?5:4):(isAdmin?(mode==='escalation'?5:7):(mode==='escalation'?4:6));
+  var tbody=document.getElementById('tableBody');
+  // Documents SPOC mode
+  if(mode==='documents'){
+    var drows=data.filter(function(r){
+      var ok=true;
+      if(filters.state&&r.state!==filters.state)ok=false;
+      if(filters.location&&r.location!==filters.location)ok=false;
+      if(filters.client&&r.client!==filters.client)ok=false;
+      if(!ok)return false;
+      if(!q)return true;
+      return (r.state||'').toLowerCase().indexOf(q)>=0||(r.location||'').toLowerCase().indexOf(q)>=0||(r.client||'').toLowerCase().indexOf(q)>=0||(r.spocs||[]).some(function(s){return(s.n||'').toLowerCase().indexOf(q)>=0||(s.p||'').indexOf(q)>=0;});
+    });
+    if(!drows.length){tbody.innerHTML='<tr><td colspan="'+cols+'" class="no-results">No rows found.</td></tr>';return;}
+    var html='';
+    drows.forEach(function(r){
+      var ri=data.indexOf(r);
+      var spocHtml='<div class="spoc-list">';
+      (r.spocs||[]).forEach(function(s,si){
+        spocHtml+='<div class="spoc-card">';
+        spocHtml+='<div class="spoc-num">'+(si+1)+'</div>';
+        spocHtml+='<div class="spoc-info">';
+        spocHtml+='<div class="contact-name">'+h(s.n||'—')+'</div>';
+        if(s.p&&s.p!=='-'){
+          spocHtml+='<div class="contact-phone">'+PHONE+' '+h(s.p)+'</div>';
+          spocHtml+='<div class="contact-actions"><a class="btn-call" href="tel:'+h(s.p)+'">'+PHONE_ICON+' Call</a><a class="btn-wa" href="https://wa.me/91'+h(s.p.replace(/[^0-9]/g,''))+'" target="_blank">'+WA_ICON+' WhatsApp</a></div>';
+        }
+        spocHtml+='</div></div>';
+      });
+      spocHtml+='</div>';
+      html+='<tr>';
+      html+='<td><div class="dept-cell">'+h(r.state||'')+'</div></td>';
+      html+='<td><div class="dept-cell">'+h(r.location||'')+'</div></td>';
+      html+='<td><div class="client-cell">'+h(r.client||'')+'</div></td>';
+      html+='<td>'+spocHtml+'</td>';
+      if(isAdmin)html+='<td><div class="row-actions"><button class="btn btn-secondary btn-sm edit-btn" data-i="'+ri+'" title="Edit">'+EDIT+'</button><button class="btn btn-secondary btn-sm dup-btn" data-i="'+ri+'" title="Duplicate">'+COPY+'</button><button class="btn btn-danger btn-sm del-btn" data-i="'+ri+'" title="Delete">'+TRASH+'</button></div></td>';
+      html+='</tr>';
+    });
+    tbody.innerHTML=html;
+    tbody.querySelectorAll('.edit-btn').forEach(function(b){b.addEventListener('click',function(){openEdit(+this.dataset.i);});});
+    tbody.querySelectorAll('.dup-btn').forEach(function(b){b.addEventListener('click',function(){dupRow(+this.dataset.i);});});
+    tbody.querySelectorAll('.del-btn').forEach(function(b){b.addEventListener('click',function(){openConfirm(+this.dataset.i);});});
+    return;
+  }
   var rows=data.filter(function(r){
     var ok=true;
     Object.keys(filters).forEach(function(k){
       if(!filters[k])return;
       if(k==='dept'&&r.dept!==filters[k])ok=false;
       if(k==='state'&&r.state!==filters[k])ok=false;
+      if(k==='city'&&r.city!==filters[k])ok=false;
       if(k==='client'&&r.client!==filters[k])ok=false;
     });
     if(!ok)return false;
     if(!q)return true;
-    var base=mode==='escalation'?(r.dept||'').toLowerCase().indexOf(q)>=0:((r.state||'').toLowerCase().indexOf(q)>=0||(r.client||'').toLowerCase().indexOf(q)>=0);
+    var base=mode==='escalation'?(r.dept||'').toLowerCase().indexOf(q)>=0:((r.state||'').toLowerCase().indexOf(q)>=0||(r.city||'').toLowerCase().indexOf(q)>=0||(r.client||'').toLowerCase().indexOf(q)>=0);
     return base||(r.e||[]).some(function(c){return(c.n||'').toLowerCase().indexOf(q)>=0||(c.em||'').toLowerCase().indexOf(q)>=0||(c.p||'').indexOf(q)>=0;});
   });
   var tbody=document.getElementById('tableBody');
@@ -359,11 +448,12 @@ function renderTable(){
     var i=0;
     while(i<sorted.length){
       var st=sorted[i].state||'',grp=[],j=i;
-      while(j<sorted.length&&(sorted[j].state||'')=== st){grp.push(sorted[j]);j++;}
+      while(j<sorted.length&&(sorted[j].state||'')===st){grp.push(sorted[j]);j++;}
       grp.forEach(function(r,g){
         var ri=data.indexOf(r);
         html+='<tr>';
         if(g===0)html+='<td class="group-cell" rowspan="'+grp.length+'" style="vertical-align:middle">'+h(st)+'</td>';
+        html+='<td><div class="client-cell">'+h(r.city||'')+'</div></td>';
         html+='<td><div class="client-cell">'+h(r.client||'')+'</div></td>';
         html+='<td>'+contactCell(r.e[0],0)+'</td><td>'+contactCell(r.e[1],1)+'</td><td>'+contactCell(r.e[2],2)+'</td>';
         if(isAdmin)html+='<td><div class="row-actions"><button class="btn btn-secondary btn-sm edit-btn" data-i="'+ri+'" title="Edit">'+EDIT+'</button><button class="btn btn-secondary btn-sm dup-btn" data-i="'+ri+'" title="Duplicate">'+COPY+'</button><button class="btn btn-danger btn-sm del-btn" data-i="'+ri+'" title="Delete">'+TRASH+'</button></div></td>';
@@ -385,11 +475,28 @@ function renderTable(){
   tbody.querySelectorAll('.dup-btn').forEach(function(b){b.addEventListener('click',function(){dupRow(+this.dataset.i);});});
   tbody.querySelectorAll('.del-btn').forEach(function(b){b.addEventListener('click',function(){openConfirm(+this.dataset.i);});});
 }
-function dupRow(i){var d=curData(),copy=JSON.parse(JSON.stringify(d[i]));if(mode==='escalation')copy.dept=(copy.dept||'')+' (copy)';else copy.client=(copy.client||'')+' (copy)';d.splice(i+1,0,copy);save(curKey(),d);renderTable();renderFilters();toast('Row duplicated');}
+function dupRow(i){var d=curData(),copy=JSON.parse(JSON.stringify(d[i]));if(mode==='escalation')copy.dept=(copy.dept||'')+' (copy)';else{copy.client=(copy.client||'')+' (copy)';};d.splice(i+1,0,copy);save(curKey(),d);renderTable();renderFilters();toast('Row duplicated');}
 function buildForm(r){
   var html='';
+  if(mode==='documents'){
+    html+='<div class="form-row"><div class="form-group" style="margin:0"><label>State</label><input id="fDocState" type="text" value="'+h(r?r.state:'')+'"/></div><div class="form-group" style="margin:0"><label>Location / Workarea</label><input id="fDocLoc" type="text" value="'+h(r?r.location:'')+'"/></div><div class="form-group" style="margin:0"><label>Client</label><input id="fDocClient" type="text" value="'+h(r?r.client:'')+'"/></div></div>';
+    var spocs=r?(r.spocs||[{}]):[{},{},{}];
+    html+='<div id="spocList">';
+    spocs.forEach(function(s,j){
+      html+='<div class="esc-section" id="spocRow'+j+'">';
+      html+='<div class="esc-section-hd" style="display:flex;justify-content:space-between;align-items:center;"><span>SPOC '+(j+1)+'</span>'+(j>0?'<button type="button" class="btn btn-danger btn-sm" onclick="removeSpocRow('+j+')">Remove</button>':'')+'</div>';
+      html+='<div class="esc-fields">';
+      html+='<div class="form-group" style="margin:0"><label>Name</label><input class="spoc-n" type="text" data-idx="'+j+'" value="'+h(s.n||'')+'"/></div>';
+      html+='<div class="form-group" style="margin:0"><label>Mobile</label><input class="spoc-p" type="text" data-idx="'+j+'" value="'+h(s.p||'')+'"/></div>';
+      html+='</div></div>';
+    });
+    html+='</div>';
+    html+='<button type="button" class="btn btn-secondary" style="width:100%;margin-top:4px" onclick="addSpocRow()">+ Add SPOC</button>';
+    document.getElementById('modalBody').innerHTML=html;
+    return;
+  }
   if(mode==='escalation')html+='<div class="form-group"><label>Department Name</label><input id="fDept" type="text" value="'+h(r?r.dept:'')+'"/></div>';
-  else html+='<div class="form-row"><div class="form-group" style="margin:0"><label>State</label><input id="fState" type="text" value="'+h(r?r.state:'')+'"/></div><div class="form-group" style="margin:0"><label>Client</label><input id="fClient" type="text" value="'+h(r?r.client:'')+'"/></div></div>';
+  else html+='<div class="form-row"><div class="form-group" style="margin:0"><label>State</label><input id="fState" type="text" value="'+h(r?r.state:'')+'"/></div><div class="form-group" style="margin:0"><label>City / Location</label><input id="fCity" type="text" value="'+h(r?r.city:'')+'"/></div><div class="form-group" style="margin:0"><label>Client</label><input id="fClient" type="text" value="'+h(r?r.client:'')+'"/></div></div>';
   ['L1 \u2014 Escalation 1','L2 \u2014 Escalation 2','L3 \u2014 Escalation 3'].forEach(function(lbl,j){
     var c=r?(r.e[j]||{}):{},colors=['var(--l1-text)','var(--l2-text)','var(--l3-text)'];
     html+='<div class="esc-section"><div class="esc-section-hd" style="color:'+colors[j]+'">'+lbl+'</div><div class="esc-fields">';
@@ -400,21 +507,58 @@ function buildForm(r){
   });
   document.getElementById('modalBody').innerHTML=html;
 }
+function addSpocRow(){
+  var list=document.getElementById('spocList');
+  var idx=list.querySelectorAll('.esc-section').length;
+  var div=document.createElement('div');div.className='esc-section';div.id='spocRow'+idx;
+  div.innerHTML='<div class="esc-section-hd" style="display:flex;justify-content:space-between;align-items:center;"><span>SPOC '+(idx+1)+'</span><button type="button" class="btn btn-danger btn-sm" onclick="removeSpocRow('+idx+')">Remove</button></div><div class="esc-fields"><div class="form-group" style="margin:0"><label>Name</label><input class="spoc-n" type="text" data-idx="'+idx+'" value=""/></div><div class="form-group" style="margin:0"><label>Mobile</label><input class="spoc-p" type="text" data-idx="'+idx+'" value=""/></div></div>';
+  list.appendChild(div);
+}
+function removeSpocRow(idx){
+  var el=document.getElementById('spocRow'+idx);
+  if(el)el.remove();
+  // Re-index labels
+  var list=document.getElementById('spocList');
+  list.querySelectorAll('.esc-section').forEach(function(el,i){
+    el.id='spocRow'+i;
+    var hd=el.querySelector('.esc-section-hd span');if(hd)hd.textContent='SPOC '+(i+1);
+    el.querySelectorAll('input').forEach(function(inp){inp.dataset.idx=i;});
+    var rmBtn=el.querySelector('button');if(rmBtn&&i>0)rmBtn.setAttribute('onclick','removeSpocRow('+i+')');
+  });
+}
 function openAdd(){editIdx=-1;document.getElementById('modalTitle').textContent='Add Row';buildForm(null);document.getElementById('editOverlay').classList.add('open');}
 function openEdit(i){editIdx=i;document.getElementById('modalTitle').textContent='Edit Row';buildForm(curData()[i]);document.getElementById('editOverlay').classList.add('open');}
 function closeEdit(){document.getElementById('editOverlay').classList.remove('open');}
 function saveRow(){
-  var e3=[0,1,2].map(function(j){return{n:(document.getElementById('e'+j+'n')||{value:''}).value.trim(),p:(document.getElementById('e'+j+'p')||{value:''}).value.trim(),em:(document.getElementById('e'+j+'e')||{value:''}).value.trim()};});
   var row,d=curData();
+  if(mode==='documents'){
+    var docState=(document.getElementById('fDocState')||{value:''}).value.trim();
+    var docLoc=(document.getElementById('fDocLoc')||{value:''}).value.trim();
+    var docClient=(document.getElementById('fDocClient')||{value:''}).value.trim();
+    if(!docClient&&!docState)return;
+    var list=document.getElementById('spocList');
+    var spocs=[];
+    (list?list.querySelectorAll('.esc-section'):[]).forEach(function(sec){
+      var n=(sec.querySelector('.spoc-n')||{value:''}).value.trim();
+      var p=(sec.querySelector('.spoc-p')||{value:''}).value.trim();
+      if(n||p)spocs.push({n:n,p:p,em:''});
+    });
+    row={state:docState,location:docLoc,client:docClient,spocs:spocs};
+    if(editIdx>=0){d[editIdx]=row;toast('Row updated');}else{d.push(row);toast('Row added');}
+    docData=d;
+    save(curKey(),d);closeEdit();renderFilters();renderTable();
+    return;
+  }
+  var e3=[0,1,2].map(function(j){return{n:(document.getElementById('e'+j+'n')||{value:''}).value.trim(),p:(document.getElementById('e'+j+'p')||{value:''}).value.trim(),em:(document.getElementById('e'+j+'e')||{value:''}).value.trim()};});
   if(mode==='escalation'){var dept=(document.getElementById('fDept')||{value:''}).value.trim();if(!dept)return;row={dept:dept,e:e3};}
-  else{var st2=(document.getElementById('fState')||{value:''}).value.trim(),cl2=(document.getElementById('fClient')||{value:''}).value.trim();if(!st2&&!cl2)return;row={state:st2,client:cl2,e:e3};}
+  else{var st2=(document.getElementById('fState')||{value:''}).value.trim(),ct2=(document.getElementById('fCity')||{value:''}).value.trim(),cl2=(document.getElementById('fClient')||{value:''}).value.trim();if(!st2&&!cl2)return;row={state:st2,city:ct2,client:cl2,e:e3};}
   if(editIdx>=0){d[editIdx]=row;toast('Row updated');}else{d.push(row);toast('Row added');}
   save(curKey(),d);closeEdit();renderFilters();renderTable();
 }
-function openConfirm(i){deleteIdx=i;var r=curData()[i];var lbl=mode==='escalation'?(r.dept||'this row'):((r.state||'')+' / '+(r.client||'this row'));document.getElementById('confirmMsg').textContent='Delete "'+lbl+'"? This cannot be undone.';document.getElementById('confirmOverlay').classList.add('open');}
+function openConfirm(i){deleteIdx=i;var r=curData()[i];var lbl=mode==='escalation'?(r.dept||'this row'):mode==='documents'?((r.state||'')+' / '+(r.client||'this row')):((r.state||'')+' / '+(r.city?r.city+' / ':'')+(r.client||'this row'));document.getElementById('confirmMsg').textContent='Delete "'+lbl+'"? This cannot be undone.';document.getElementById('confirmOverlay').classList.add('open');}
 function closeConfirm(){document.getElementById('confirmOverlay').classList.remove('open');deleteIdx=-1;}
-function doDelete(){if(deleteIdx<0)return;var d=curData(),name=mode==='escalation'?d[deleteIdx].dept:(d[deleteIdx].state+'/'+d[deleteIdx].client);d.splice(deleteIdx,1);if(mode==='escalation')escData=d;else recData=d;save(curKey(),d);closeConfirm();renderFilters();renderTable();toast('"'+name+'" deleted');}
-function switchMatrix(m){mode=m;filters={};document.getElementById('sw-escalation').className='sw-btn'+(m==='escalation'?' active':'');document.getElementById('sw-recruitment').className='sw-btn'+(m==='recruitment'?' active':'');document.getElementById('companySubLabel').textContent=m==='escalation'?'Escalation Matrix':'Recruitment Matrix';document.getElementById('search').value='';renderHead();renderFilters();renderTable();}
+function doDelete(){if(deleteIdx<0)return;var d=curData(),name=(mode==='escalation'||mode==='documents')?d[deleteIdx].dept:(d[deleteIdx].state+'/'+d[deleteIdx].client);d.splice(deleteIdx,1);if(mode==='escalation')escData=d;else if(mode==='recruitment')recData=d;else docData=d;save(curKey(),d);closeConfirm();renderFilters();renderTable();toast('"'+name+'" deleted');}
+function switchMatrix(m){mode=m;filters={};document.getElementById('sw-escalation').className='sw-btn'+(m==='escalation'?' active':'');document.getElementById('sw-recruitment').className='sw-btn'+(m==='recruitment'?' active':'');document.getElementById('sw-documents').className='sw-btn'+(m==='documents'?' active':'');var labels={escalation:'Escalation Matrix',recruitment:'Recruitment Matrix',documents:'Documents SPOC'};document.getElementById('companySubLabel').textContent=labels[m]||'';document.getElementById('search').value='';renderHead();renderFilters();renderTable();}
 function setAdminBtn(){var btn=document.getElementById('adminBtn');if(isAdmin){btn.innerHTML='\uD83D\uDD13 Logout Admin';btn.className='btn-admin logout';}else{btn.innerHTML='\uD83D\uDD12 Admin Login';btn.className='btn-admin';}}
 function openLogin(){document.getElementById('pwInput').value='';document.getElementById('loginError').textContent='';document.getElementById('loginOverlay').classList.add('open');setTimeout(function(){document.getElementById('pwInput').focus();},100);}
 function closeLogin(){document.getElementById('loginOverlay').classList.remove('open');}
@@ -429,6 +573,7 @@ function setImportMode(m){
   importMode=m;
   document.getElementById('importModeEsc').className='import-mode-btn'+(m==='escalation'?' active':'');
   document.getElementById('importModeRec').className='import-mode-btn'+(m==='recruitment'?' active':'');
+  document.getElementById('importModeDoc').className='import-mode-btn'+(m==='documents'?' active':'');
   updateFormatHint();
   resetImportPreview();
 }
@@ -437,6 +582,8 @@ function updateFormatHint(){
   if(!el)return;
   if(importMode==='escalation'){
     el.textContent='Columns: Department, L1 Name, L1 Mobile, L1 Email, L2 Name, L2 Mobile, L2 Email, L3 Name, L3 Mobile, L3 Email';
+  } else if(importMode==='documents'){
+    el.textContent='Columns: Department, SPOC1 Name, SPOC1 Mobile, SPOC1 Email, SPOC2 Name, SPOC2 Mobile, SPOC2 Email, ...';
   } else {
     el.textContent='Columns: State, Client, L1 Name, L1 Mobile, L1 Email, L2 Name, L2 Mobile, L2 Email, L3 Name, L3 Mobile, L3 Email';
   }
@@ -503,13 +650,22 @@ function processImportRows(rows,fname){
         {n:(r[4]+'').trim(),p:(r[5]+'').trim(),em:(r[6]+'').trim()},
         {n:(r[7]+'').trim(),p:(r[8]+'').trim(),em:(r[9]+'').trim()}
       ]});
+    } else if(importMode==='documents'){
+      var dept=(r[2]+'').trim()||((r[0]+'').trim());
+      if(!dept){errors.push('Row '+rowNum+': Client is required');return;}
+      var spocs=[];
+      for(var si=3;si+1<r.length;si+=2){
+        var sn=(r[si]+'').trim(),sp=(r[si+1]+'').trim();
+        if(sn||sp)spocs.push({n:sn,p:sp,em:''});
+      }
+      parsed.push({state:(r[0]+'').trim(),location:(r[1]+'').trim(),client:(r[2]+'').trim(),spocs:spocs});
     } else {
-      var state=(r[0]+'').trim(),client=(r[1]+'').trim();
+      var state=(r[0]+'').trim(),city=(r[1]+'').trim(),client=(r[2]+'').trim();
       if(!state&&!client){errors.push('Row '+rowNum+': State or Client is required');return;}
-      parsed.push({state:state,client:client,e:[
-        {n:(r[2]+'').trim(),p:(r[3]+'').trim(),em:(r[4]+'').trim()},
-        {n:(r[5]+'').trim(),p:(r[6]+'').trim(),em:(r[7]+'').trim()},
-        {n:(r[8]+'').trim(),p:(r[9]+'').trim(),em:(r[10]+'').trim()}
+      parsed.push({state:state,city:city,client:client,e:[
+        {n:(r[3]+'').trim(),p:(r[4]+'').trim(),em:(r[5]+'').trim()},
+        {n:(r[6]+'').trim(),p:(r[7]+'').trim(),em:(r[8]+'').trim()},
+        {n:(r[9]+'').trim(),p:(r[10]+'').trim(),em:(r[11]+'').trim()}
       ]});
     }
   });
@@ -556,10 +712,10 @@ function setMergeMode(m){
 }
 function doImport(){
   if(!importParsedRows||!importParsedRows.length)return;
-  var key=importMode==='escalation'?ESC_KEY:REC_KEY;
-  var existing=importMode==='escalation'?escData:recData;
+  var key=importMode==='escalation'?ESC_KEY:importMode==='recruitment'?REC_KEY:DOC_KEY;
+  var existing=importMode==='escalation'?escData:importMode==='recruitment'?recData:docData;
   var newData=window._importMergeMode==='replace'?importParsedRows:existing.concat(importParsedRows);
-  if(importMode==='escalation')escData=newData;else recData=newData;
+  if(importMode==='escalation')escData=newData;else if(importMode==='recruitment')recData=newData;else docData=newData;
   save(key,newData);
   closeImport();
   if(importMode!==mode)switchMatrix(importMode);
@@ -573,10 +729,15 @@ function downloadTemplate(){
       ['Department','L1 Name','L1 Mobile','L1 Email','L2 Name','L2 Mobile','L2 Email','L3 Name','L3 Mobile','L3 Email'],
       ['Example Dept','John Doe','9876543210','john@example.com','Jane Smith','9876543211','jane@example.com','Manager Name','9876543212','manager@example.com']
     ];
+  } else if(importMode==='documents'){
+    ws_data=[
+      ['State','Location / Workarea','Client','SPOC1 Name','SPOC1 Mobile','SPOC2 Name','SPOC2 Mobile','SPOC3 Name','SPOC3 Mobile'],
+      ['Tamil Nadu','Chennai','Acme Corp','John Doe','9876543210','Jane Smith','9876543211','','']
+    ];
   } else {
     ws_data=[
-      ['State','Client','L1 Name','L1 Mobile','L1 Email','L2 Name','L2 Mobile','L2 Email','L3 Name','L3 Mobile','L3 Email'],
-      ['Tamil Nadu','Acme Corp','John Doe','9876543210','john@example.com','Jane Smith','9876543211','jane@example.com','Manager Name','9876543212','manager@example.com']
+      ['State','City / Location','Client','L1 Name','L1 Mobile','L1 Email','L2 Name','L2 Mobile','L2 Email','L3 Name','L3 Mobile','L3 Email'],
+      ['Tamil Nadu','Chennai','Acme Corp','John Doe','9876543210','john@example.com','Jane Smith','9876543211','jane@example.com','Manager Name','9876543212','manager@example.com']
     ];
   }
   var wb=XLSX.utils.book_new();
@@ -604,6 +765,7 @@ document.getElementById('importFileInput').addEventListener('change',function(){
 document.getElementById('adminBtn').addEventListener('click',function(){if(isAdmin)doLogout();else openLogin();});
 document.getElementById('sw-escalation').addEventListener('click',function(){switchMatrix('escalation');});
 document.getElementById('sw-recruitment').addEventListener('click',function(){switchMatrix('recruitment');});
+document.getElementById('sw-documents').addEventListener('click',function(){switchMatrix('documents');});
 document.getElementById('addRowBtn').addEventListener('click',openAdd);
 document.getElementById('modalCloseBtn').addEventListener('click',closeEdit);
 document.getElementById('modalCancelBtn').addEventListener('click',closeEdit);
