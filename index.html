@@ -85,6 +85,15 @@ td.group-cell{font-weight:600;font-size:13px;color:var(--text);background:#f7f6f
 .users-table-wrap table{width:100%;}
 .users-table-wrap td,.users-table-wrap th{padding:9px 10px;}
 .no-users-msg{text-align:center;padding:24px;color:var(--text3);font-size:13px;}
+.settings-card{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px;padding:11px 13px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);}
+.settings-card-title{font-size:13px;font-weight:600;color:var(--text);}
+.settings-card-desc{font-size:11.5px;color:var(--text2);margin-top:2px;}
+.toggle-switch{position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0;}
+.toggle-switch input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;cursor:pointer;inset:0;background:var(--border2);border-radius:22px;transition:.2s;}
+.toggle-slider:before{content:"";position:absolute;height:16px;width:16px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;}
+.toggle-switch input:checked+.toggle-slider{background:var(--accent);}
+.toggle-switch input:checked+.toggle-slider:before{transform:translateX(18px);}
 .contact-name{font-weight:500;font-size:13px;color:var(--text);margin-bottom:2px;}
 .contact-phone,.contact-email{font-size:11.5px;color:var(--text2);display:flex;align-items:center;gap:4px;margin-top:2px;flex-wrap:wrap;}
 .icon-btn{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:4px;cursor:pointer;text-decoration:none;flex-shrink:0;transition:all .15s;}
@@ -180,6 +189,10 @@ td.group-cell{font-weight:600;font-size:13px;color:var(--text);background:#f7f6f
       <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
       <input class="search-input" type="text" id="search" placeholder="Search..." oninput="renderTable()"/>
     </div>
+    <button id="exportExcelBtn" class="btn btn-secondary" style="display:none" title="Download the current matrix's rows as an Excel file">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
+      Export to Excel
+    </button>
     <button id="addRowBtn" class="btn btn-primary" style="display:none">
       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
       Add Row
@@ -256,6 +269,16 @@ td.group-cell{font-weight:600;font-size:13px;color:var(--text);background:#f7f6f
     </div>
     <div class="modal-body">
       <div id="usersListView">
+        <div class="settings-card">
+          <div>
+            <div class="settings-card-title">Public Excel Export</div>
+            <div class="settings-card-desc">When ON, the "Export to Excel" button is visible to everyone — even without logging in. When OFF, only Admin can see and use it.</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="publicExportToggle"/>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
         <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
           <button class="btn btn-primary btn-sm" id="addUserBtn">
             <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
@@ -400,6 +423,8 @@ var escData=load(ESC_KEY,DEFAULT_ESC);
 var recData=load(REC_KEY,DEFAULT_REC);
 var docData=load(DOC_KEY,DEFAULT_DOC);
 var usersData=load(USERS_KEY,DEFAULT_USERS);
+var PUBLIC_EXPORT_KEY='qhrm_public_export_v1';
+var publicExportEnabled=load(PUBLIC_EXPORT_KEY,false);
 usersData.forEach(function(u){if(!u.cats){u.cats=u.cat?[u.cat]:[];}});
 function curData(){return mode==='escalation'?escData:mode==='recruitment'?recData:docData;}
 function curKey(){return mode==='escalation'?ESC_KEY:mode==='recruitment'?REC_KEY:DOC_KEY;}
@@ -694,13 +719,15 @@ function tryLogin(){
 function doLogout(){isAdmin=false;isEditor=false;editorCats=[];currentUser=null;sessionStorage.removeItem(SK);init();toast('Logged out');}
 function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2800);}
 function updateEditButtons(){var ce=canEdit();document.getElementById('addRowBtn').style.display=ce?'':'none';document.getElementById('importBtn').style.display=ce?'':'none';}
-function init(){setAdminBtn();updateEditButtons();renderHead();renderFilters();renderTable();}
+function updateExportExcelVisibility(){var btn=document.getElementById('exportExcelBtn');if(btn)btn.style.display=(isAdmin||publicExportEnabled)?'':'none';}
+function init(){setAdminBtn();updateEditButtons();updateExportExcelVisibility();renderHead();renderFilters();renderTable();}
 // ---- USER & ROLE ACCESS MANAGEMENT ----
 function openUsers(){
   userFormIdx=-1;
   document.getElementById('usersListView').style.display='';
   document.getElementById('usersFormView').style.display='none';
   document.getElementById('usersFormFooter').style.display='none';
+  document.getElementById('publicExportToggle').checked=publicExportEnabled;
   renderUsersTable();
   document.getElementById('usersOverlay').classList.add('open');
 }
@@ -798,6 +825,55 @@ function doDeleteUser(){
   renderUsersTable();
   toast('User "'+name+'" deleted');
 }
+function exportToExcel(){
+  var data=curData();
+  if(!data.length){toast('No rows to export in this matrix');return;}
+  var ws_data=[];
+  if(mode==='escalation'){
+    ws_data.push(['Department','L1 Name','L1 Mobile','L1 Email','L2 Name','L2 Mobile','L2 Email','L3 Name','L3 Mobile','L3 Email']);
+    data.forEach(function(r){
+      var e=r.e||[];
+      ws_data.push([
+        r.dept||'',
+        (e[0]&&e[0].n)||'',(e[0]&&e[0].p)||'',(e[0]&&e[0].em)||'',
+        (e[1]&&e[1].n)||'',(e[1]&&e[1].p)||'',(e[1]&&e[1].em)||'',
+        (e[2]&&e[2].n)||'',(e[2]&&e[2].p)||'',(e[2]&&e[2].em)||''
+      ]);
+    });
+  } else if(mode==='recruitment'){
+    ws_data.push(['State','City / Location','Client','L1 Name','L1 Mobile','L1 Email','L2 Name','L2 Mobile','L2 Email','L3 Name','L3 Mobile','L3 Email']);
+    data.forEach(function(r){
+      var e=r.e||[];
+      ws_data.push([
+        r.state||'',r.city||'',r.client||'',
+        (e[0]&&e[0].n)||'',(e[0]&&e[0].p)||'',(e[0]&&e[0].em)||'',
+        (e[1]&&e[1].n)||'',(e[1]&&e[1].p)||'',(e[1]&&e[1].em)||'',
+        (e[2]&&e[2].n)||'',(e[2]&&e[2].p)||'',(e[2]&&e[2].em)||''
+      ]);
+    });
+  } else {
+    var maxSpocs=1;
+    data.forEach(function(r){if(r.spocs&&r.spocs.length>maxSpocs)maxSpocs=r.spocs.length;});
+    var header=['State','Location / Workarea','Client'];
+    for(var si=1;si<=maxSpocs;si++){header.push('SPOC'+si+' Name');header.push('SPOC'+si+' Mobile');}
+    ws_data.push(header);
+    data.forEach(function(r){
+      var row=[r.state||'',r.location||'',r.client||''];
+      var spocs=r.spocs||[];
+      for(var si=0;si<maxSpocs;si++){
+        row.push((spocs[si]&&spocs[si].n)||'');
+        row.push((spocs[si]&&spocs[si].p)||'');
+      }
+      ws_data.push(row);
+    });
+  }
+  var wb=XLSX.utils.book_new();
+  var ws=XLSX.utils.aoa_to_sheet(ws_data);
+  XLSX.utils.book_append_sheet(wb,ws,(CAT_LABELS[mode]||'Data').slice(0,31));
+  var datestamp=new Date().toISOString().slice(0,10);
+  XLSX.writeFile(wb,'quantum_'+mode+'_export_'+datestamp+'.xlsx');
+  toast('Exported '+data.length+' rows to Excel');
+}
 function exportUpdatedHtml(){
   closeEdit();closeConfirm();closeLogin();closeUsers();
   try{closeImport();}catch(e){}
@@ -806,6 +882,7 @@ function exportUpdatedHtml(){
   html=html.replace('load(REC_KEY,DEFAULT_REC)','load(REC_KEY,'+JSON.stringify(recData)+')');
   html=html.replace('load(DOC_KEY,DEFAULT_DOC)','load(DOC_KEY,'+JSON.stringify(docData)+')');
   html=html.replace('load(USERS_KEY,DEFAULT_USERS)','load(USERS_KEY,'+JSON.stringify(usersData)+')');
+  html=html.replace('load(PUBLIC_EXPORT_KEY,false)','load(PUBLIC_EXPORT_KEY,'+JSON.stringify(publicExportEnabled)+')');
   var blob=new Blob([html],{type:'text/html'});
   var url=URL.createObjectURL(blob);
   var a=document.createElement('a');
@@ -1034,11 +1111,18 @@ document.getElementById('pwInput').addEventListener('keydown',function(e){if(e.k
 document.getElementById('userInput').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('pwInput').focus();});
 document.getElementById('usersBtn').addEventListener('click',openUsers);
 document.getElementById('exportBtn').addEventListener('click',exportUpdatedHtml);
+document.getElementById('exportExcelBtn').addEventListener('click',exportToExcel);
 document.getElementById('usersCloseBtn').addEventListener('click',closeUsers);
 document.getElementById('addUserBtn').addEventListener('click',function(){openUserForm(-1);});
 document.getElementById('userFormCancelBtn').addEventListener('click',closeUserForm);
 document.getElementById('userFormSaveBtn').addEventListener('click',saveUser);
 document.getElementById('ufRole').addEventListener('change',toggleUfCatVisibility);
+document.getElementById('publicExportToggle').addEventListener('change',function(){
+  publicExportEnabled=this.checked;
+  save(PUBLIC_EXPORT_KEY,publicExportEnabled);
+  updateExportExcelVisibility();
+  toast(publicExportEnabled?'Public Excel export enabled':'Public Excel export disabled');
+});
 document.getElementById('editOverlay').addEventListener('click',function(e){if(e.target===this)closeEdit();});
 document.getElementById('confirmOverlay').addEventListener('click',function(e){if(e.target===this)closeConfirm();});
 document.getElementById('loginOverlay').addEventListener('click',function(e){if(e.target===this)closeLogin();});
