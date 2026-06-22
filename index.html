@@ -193,6 +193,10 @@ td.group-cell{font-weight:600;font-size:13px;color:var(--text);background:#f7f6f
       <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       Manage Users
     </button>
+    <button id="exportBtn" class="btn btn-secondary" style="display:none" title="Download a new HTML file with all current rows and users baked in as the built-in defaults">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export Updated HTML
+    </button>
     <button id="adminBtn" class="btn-admin">&#128274; Login</button>
   </div>
 </header>
@@ -659,6 +663,8 @@ function setAdminBtn(){
   else{btn.innerHTML='\uD83D\uDD12 Login';btn.className='btn-admin';btn.title='';}
   var ub=document.getElementById('usersBtn');
   if(ub)ub.style.display=isAdmin?'':'none';
+  var eb=document.getElementById('exportBtn');
+  if(eb)eb.style.display=isAdmin?'':'none';
 }
 function openLogin(){document.getElementById('userInput').value='';document.getElementById('pwInput').value='';document.getElementById('loginError').textContent='';document.getElementById('loginOverlay').classList.add('open');setTimeout(function(){document.getElementById('userInput').focus();},100);}
 function closeLogin(){document.getElementById('loginOverlay').classList.remove('open');}
@@ -788,6 +794,25 @@ function doDeleteUser(){
   closeConfirm();
   renderUsersTable();
   toast('User "'+name+'" deleted');
+}
+function exportUpdatedHtml(){
+  closeEdit();closeConfirm();closeLogin();closeUsers();
+  try{closeImport();}catch(e){}
+  var html='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
+  html=html.replace('load(ESC_KEY,DEFAULT_ESC)','load(ESC_KEY,'+JSON.stringify(escData)+')');
+  html=html.replace('load(REC_KEY,DEFAULT_REC)','load(REC_KEY,'+JSON.stringify(recData)+')');
+  html=html.replace('load(DOC_KEY,DEFAULT_DOC)','load(DOC_KEY,'+JSON.stringify(docData)+')');
+  html=html.replace('load(USERS_KEY,DEFAULT_USERS)','load(USERS_KEY,'+JSON.stringify(usersData)+')');
+  var blob=new Blob([html],{type:'text/html'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;
+  a.download='escalation-matrix-updated.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(url);},1000);
+  toast('Downloaded — this file is now your new master copy');
 }
 // ---- IMPORT LOGIC ----
 var importMode=mode;
@@ -1005,6 +1030,7 @@ document.getElementById('loginCancelBtn').addEventListener('click',closeLogin);
 document.getElementById('pwInput').addEventListener('keydown',function(e){if(e.key==='Enter')tryLogin();});
 document.getElementById('userInput').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('pwInput').focus();});
 document.getElementById('usersBtn').addEventListener('click',openUsers);
+document.getElementById('exportBtn').addEventListener('click',exportUpdatedHtml);
 document.getElementById('usersCloseBtn').addEventListener('click',closeUsers);
 document.getElementById('addUserBtn').addEventListener('click',function(){openUserForm(-1);});
 document.getElementById('userFormCancelBtn').addEventListener('click',closeUserForm);
