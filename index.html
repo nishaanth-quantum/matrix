@@ -1046,7 +1046,7 @@ function parseImportFile(file){
       var data=e.target.result;
       var wb;
       if(file.name.endsWith('.csv')){
-        wb=XLSX.read(data,{type:'binary'});
+        wb=XLSX.read(data,{type:'string'});
       } else {
         wb=XLSX.read(new Uint8Array(data),{type:'array'});
       }
@@ -1057,8 +1057,11 @@ function parseImportFile(file){
       showImportError('Could not parse file: '+err.message);
     }
   };
+  reader.onerror=function(){
+    showImportError('Could not read the file. Please try again.');
+  };
   if(file.name.endsWith('.csv')){
-    reader.readAsBinaryString(file);
+    reader.readAsText(file);
   } else {
     reader.readAsArrayBuffer(file);
   }
@@ -1142,6 +1145,7 @@ function setMergeMode(m){
 }
 function doImport(){
   if(!importParsedRows||!importParsedRows.length)return;
+  var importedCount=importParsedRows.length;
   var key=importMode==='escalation'?ESC_KEY:importMode==='recruitment'?REC_KEY:DOC_KEY;
   var existing=importMode==='escalation'?escData:importMode==='recruitment'?recData:docData;
   var newData=window._importMergeMode==='replace'?importParsedRows:existing.concat(importParsedRows);
@@ -1151,7 +1155,7 @@ function doImport(){
   closeImport();
   if(importMode!==mode)switchMatrix(importMode);
   else{renderFilters();renderTable();}
-  toast('Imported '+importParsedRows.length+' rows successfully');
+  toast('Imported '+importedCount+' rows successfully');
 }
 function downloadTemplate(){
   var ws_data;
