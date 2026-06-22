@@ -423,6 +423,17 @@ var escData=load(ESC_KEY,DEFAULT_ESC);
 var recData=load(REC_KEY,DEFAULT_REC);
 var docData=load(DOC_KEY,DEFAULT_DOC);
 var usersData=load(USERS_KEY,DEFAULT_USERS);
+(function ensureDefaultUsers(){
+  var changed=false;
+  DEFAULT_USERS.forEach(function(du){
+    var exists=usersData.some(function(u){return u.u.toLowerCase()===du.u.toLowerCase();});
+    if(!exists){
+      usersData.push({u:du.u,p:du.p,role:du.role,cats:du.cats?du.cats.slice():null});
+      changed=true;
+    }
+  });
+  if(changed)save(USERS_KEY,usersData);
+})();
 var PUBLIC_EXPORT_KEY='qhrm_public_export_v1';
 var publicExportEnabled=load(PUBLIC_EXPORT_KEY,false);
 usersData.forEach(function(u){if(!u.cats){u.cats=u.cat?[u.cat]:[];}});
